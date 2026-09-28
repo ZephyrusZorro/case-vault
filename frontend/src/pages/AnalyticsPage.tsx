@@ -31,6 +31,7 @@ import {
   Info,
   Clock,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../hooks/useApi";
 import { API_BASE } from "../services/api";
 import type { AnalyticsResponse } from "../types/api";
@@ -38,6 +39,7 @@ import type { AnalyticsResponse } from "../types/api";
 const PIE_COLORS = ["#2563EB", "#10B981", "#8B5CF6", "#F59E0B", "#06B6D4", "#EC4899", "#64748B"];
 
 export function AnalyticsPage() {
+  const { t } = useTranslation();
   const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d" | "all">("30d");
   const { data, loading, error, reload } = useApi<AnalyticsResponse>(
     `/api/analytics?time_range=${timeRange}`
@@ -63,11 +65,11 @@ export function AnalyticsPage() {
               <BarChart3 className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-navy-900 sm:text-2xl">
-                Analytics & Intelligence
+              <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                {t("analytics.title")}
               </h1>
               <p className="text-xs text-slate-500 sm:text-sm">
-                Evidence verification trends, discrepancy rankings, and risk intelligence telemetry
+                {t("analytics.subtitle")}
               </p>
             </div>
           </div>
@@ -117,7 +119,7 @@ export function AnalyticsPage() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
           >
             <Download className="h-3.5 w-3.5 text-slate-500" />
-            <span>Export CSV</span>
+            <span>{t("analytics.export")}</span>
           </button>
 
           <button
@@ -126,7 +128,7 @@ export function AnalyticsPage() {
             className="inline-flex items-center gap-1.5 rounded-lg bg-navy-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-navy-800"
           >
             <Printer className="h-3.5 w-3.5 text-slate-200" />
-            <span className="hidden sm:inline">Print Report</span>
+            <span className="hidden sm:inline">{t("analytics.print")}</span>
           </button>
         </div>
       </div>
@@ -161,7 +163,7 @@ export function AnalyticsPage() {
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-navy-900 sm:text-3xl">
+            <span className="text-2xl font-bold text-foreground sm:text-3xl">
               {loading ? "..." : (kpis?.total_cases ?? 0).toLocaleString()}
             </span>
             <span className="inline-flex items-center text-xs font-medium text-emerald-600">
@@ -185,7 +187,7 @@ export function AnalyticsPage() {
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-navy-900 sm:text-3xl">
+            <span className="text-2xl font-bold text-foreground sm:text-3xl">
               {loading ? "..." : `${kpis?.pass_rate ?? 0}%`}
             </span>
             <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
@@ -207,7 +209,7 @@ export function AnalyticsPage() {
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-navy-900 sm:text-3xl">
+            <span className="text-2xl font-bold text-foreground sm:text-3xl">
               {loading ? "..." : `${kpis?.high_risk_rate ?? 0}%`}
             </span>
             <span className="rounded-full bg-rose-100 px-1.5 py-0.5 text-[10px] font-semibold text-rose-700">
@@ -231,7 +233,7 @@ export function AnalyticsPage() {
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-navy-900 sm:text-3xl">
+            <span className="text-2xl font-bold text-foreground sm:text-3xl">
               {loading ? "..." : (kpis?.average_risk_score ?? 0)}
               <span className="text-sm font-normal text-slate-400">/100</span>
             </span>
@@ -254,7 +256,7 @@ export function AnalyticsPage() {
             </span>
           </div>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-navy-900 sm:text-3xl">
+            <span className="text-2xl font-bold text-foreground sm:text-3xl">
               {loading ? "..." : (Math.max(1, Math.round((kpis?.avg_processing_time_ms ?? 0) / 100)) / 10).toFixed(1)}
               <span className="text-sm font-normal text-slate-400">s</span>
             </span>
@@ -273,8 +275,8 @@ export function AnalyticsPage() {
         <div className="card p-5 xl:col-span-2">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h2 className="text-sm font-bold text-navy-900 sm:text-base">
-                Screening Volume & Verdict Trends
+              <h2 className="text-sm font-bold text-foreground sm:text-base">
+                {t("analytics.volume_trends")}
               </h2>
               <p className="text-xs text-slate-500">
                 Timeline breakdown of passed, under review, and high-risk case outcomes
@@ -344,8 +346,8 @@ export function AnalyticsPage() {
         {/* Risk Score Distribution */}
         <div className="card p-5">
           <div>
-            <h2 className="text-sm font-bold text-navy-900 sm:text-base">
-              Risk Score Distribution
+            <h2 className="text-sm font-bold text-foreground sm:text-base">
+              {t("analytics.risk_distribution")}
             </h2>
             <p className="text-xs text-slate-500">
               Distribution of cases across severity tiers
@@ -362,7 +364,7 @@ export function AnalyticsPage() {
                     <span className="text-[11px] text-slate-400">({b.range_label})</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-navy-900">{b.count} cases</span>
+                    <span className="font-bold text-foreground">{b.count} cases</span>
                     <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
                       {b.percentage}%
                     </span>
@@ -379,7 +381,7 @@ export function AnalyticsPage() {
           </div>
 
           <div className="mt-5 rounded-lg border border-slate-100 bg-slate-50 p-3 text-xs text-slate-600">
-            <div className="flex items-center gap-1.5 font-semibold text-navy-900">
+            <div className="flex items-center gap-1.5 font-semibold text-foreground">
               <Sparkles className="h-3.5 w-3.5 text-blue-600" />
               <span>Scoring Policy Health</span>
             </div>
@@ -398,8 +400,8 @@ export function AnalyticsPage() {
         <div className="card p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-navy-900 sm:text-base">
-                Cross-Document Discrepancy Vectors
+              <h2 className="text-sm font-bold text-foreground sm:text-base">
+                {t("analytics.discrepancy")}
               </h2>
               <p className="text-xs text-slate-500">
                 Frequency ranking of conflicting fields across multi-document submissions
@@ -468,7 +470,7 @@ export function AnalyticsPage() {
         <div className="card p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-navy-900 sm:text-base">
+              <h2 className="text-sm font-bold text-foreground sm:text-base">
                 Document Types & Authenticity Health
               </h2>
               <p className="text-xs text-slate-500">
@@ -526,7 +528,7 @@ export function AnalyticsPage() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-navy-900">{doc.percentage}%</span>
+                    <span className="font-semibold text-foreground">{doc.percentage}%</span>
                     <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
                       {doc.pass_rate}% pass
                     </span>
@@ -544,7 +546,7 @@ export function AnalyticsPage() {
         <div className="card p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-navy-900 sm:text-base">
+              <h2 className="text-sm font-bold text-foreground sm:text-base">
                 Forensics & Tampering Signal Spectrum
               </h2>
               <p className="text-xs text-slate-500">
@@ -571,12 +573,12 @@ export function AnalyticsPage() {
                 <div key={sig.signal_key} className="rounded-lg border border-slate-100 bg-slate-50/50 p-3 transition-colors hover:bg-slate-50">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-navy-900">{sig.label}</span>
+                      <span className="text-xs font-semibold text-foreground">{sig.label}</span>
                       <span className={`rounded border px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider ${badgeColor}`}>
                         {sig.category}
                       </span>
                     </div>
-                    <span className="text-xs font-bold text-navy-900">
+                    <span className="text-xs font-bold text-foreground">
                       {sig.rate_percent}% <span className="text-[10px] font-normal text-slate-400">({sig.detected_count} hits)</span>
                     </span>
                   </div>
@@ -596,7 +598,7 @@ export function AnalyticsPage() {
         <div className="card p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-navy-900 sm:text-base">
+              <h2 className="text-sm font-bold text-foreground sm:text-base">
                 Pipeline Stage Latency Telemetry
               </h2>
               <p className="text-xs text-slate-500">
@@ -669,7 +671,7 @@ export function AnalyticsPage() {
             <Sparkles className="h-4 w-4" />
           </div>
           <div>
-            <h2 className="text-sm font-bold text-navy-900 sm:text-base">
+            <h2 className="text-sm font-bold text-foreground sm:text-base">
               Automated Forensic Intelligence & Operational Takeaways
             </h2>
             <p className="text-xs text-slate-500">
@@ -711,11 +713,11 @@ export function AnalyticsPage() {
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white shadow-sm">
                     {iconTheme}
                   </span>
-                  <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-navy-900 shadow-sm">
+                  <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-foreground shadow-sm">
                     {ins.metric}
                   </span>
                 </div>
-                <h3 className="mt-3 text-xs font-bold text-navy-900">{ins.title}</h3>
+                <h3 className="mt-3 text-xs font-bold text-foreground">{ins.title}</h3>
                 <p className="mt-1 text-[11px] text-slate-600 leading-relaxed">
                   {ins.description}
                 </p>

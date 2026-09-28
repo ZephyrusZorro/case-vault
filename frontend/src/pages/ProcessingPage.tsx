@@ -11,6 +11,7 @@ import {
   Cpu,
 } from "lucide-react";
 import { apiGet } from "../services/api";
+import { useTranslation } from "react-i18next";
 import type { AnalysisResponse, StageStatus } from "../types/api";
 
 const POLL_MS = 800;
@@ -19,30 +20,31 @@ const MAX_CONSECUTIVE_ERRORS = 8;
 function StageIcon({ status }: { status: StageStatus }) {
   switch (status) {
     case "done":
-      return <CheckCircle2 size={19} className="shrink-0 text-emerald-500" aria-hidden="true" />;
+      return <CheckCircle2 size={19} className="shrink-0 text-accent-mint" aria-hidden="true" strokeWidth={2.5} />;
     case "running":
-      return <Loader2 size={19} className="shrink-0 animate-spin text-blue-500" aria-hidden="true" />;
+      return <Loader2 size={19} className="shrink-0 animate-spin text-accent-violet" aria-hidden="true" strokeWidth={2.5} />;
     case "warning":
-      return <AlertTriangle size={19} className="shrink-0 text-amber-500" aria-hidden="true" />;
+      return <AlertTriangle size={19} className="shrink-0 text-accent-yellow" aria-hidden="true" strokeWidth={2.5} />;
     case "unavailable":
-      return <MinusCircle size={19} className="shrink-0 text-slate-500" aria-hidden="true" />;
+      return <MinusCircle size={19} className="shrink-0 text-slate-500" aria-hidden="true" strokeWidth={2.5} />;
     case "error":
-      return <XCircle size={19} className="shrink-0 text-rose-500" aria-hidden="true" />;
+      return <XCircle size={19} className="shrink-0 text-accent-pink" aria-hidden="true" strokeWidth={2.5} />;
     default:
-      return <CircleDashed size={19} className="shrink-0 text-slate-400 dark:text-slate-600" aria-hidden="true" />;
+      return <CircleDashed size={19} className="shrink-0 text-slate-400" aria-hidden="true" strokeWidth={2.5} />;
   }
 }
 
 const STATUS_TEXT: Record<StageStatus, string> = {
-  pending: "text-slate-400 dark:text-slate-500",
-  running: "text-blue-600 dark:text-blue-400 font-semibold",
-  done: "text-navy-900 dark:text-slate-100",
-  warning: "text-navy-900 dark:text-slate-100",
-  unavailable: "text-slate-400 dark:text-slate-500",
-  error: "text-rose-600 dark:text-rose-400",
+  pending: "text-slate-400 font-bold",
+  running: "text-accent-violet font-extrabold",
+  done: "text-foreground font-bold",
+  warning: "text-foreground font-bold",
+  unavailable: "text-slate-400 font-bold",
+  error: "text-accent-pink font-bold",
 };
 
 export function ProcessingPage() {
+  const { t } = useTranslation();
   const { caseId } = useParams<{ caseId: string }>();
   const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -100,56 +102,56 @@ export function ProcessingPage() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400">
-              <Cpu size={14} />
+            <span className="flex h-6 w-6 items-center justify-center rounded-[8px] bg-accent-yellow border-2 border-foreground text-foreground shadow-hard-active">
+              <Cpu size={14} strokeWidth={2.5} />
             </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-              {finished ? "Screening Complete" : "Pipeline Executing"}
+            <span className="text-xs font-extrabold uppercase tracking-wider text-foreground">
+              {finished ? "Screening Complete" : t("cases.processing_title")}
             </span>
           </div>
-          <h2 className="mt-1 text-2xl font-extrabold text-navy-900 dark:text-white">
+          <h2 className="mt-2 text-2xl font-black text-foreground">
             {finished ? "Multi-Modal Evidence Ready" : "Forensic Pipeline Running"}
           </h2>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-            {finished ? "All forensic models finished evaluating the submitted documents." : "Scanning for visual tampering, OCR fields, MRZ checksums, and face consistency..."}
+          <p className="mt-0.5 text-xs text-slate-500 ">
+            {finished ? "All forensic models finished evaluating the submitted documents." : t("cases.processing_subtitle")}
           </p>
         </div>
         <div className="text-right">
-          <span className="text-xl font-black text-navy-900 dark:text-white">{progressPercent}%</span>
+          <span className="text-xl font-black text-foreground ">{progressPercent}%</span>
           <p className="text-[10px] uppercase tracking-wider text-slate-400">Completed</p>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+      <div className="h-4 w-full overflow-hidden rounded-full bg-white border-2 border-foreground shadow-hard">
         <div
-          className="h-full bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 transition-all duration-300 shadow-glow-blue"
+          className="h-full bg-accent-mint border-r-2 border-foreground transition-all duration-300"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
 
-      <div className="card p-6 space-y-4">
+      <div className="card p-6 space-y-4 border-2 border-foreground shadow-hard bg-white rounded-2xl">
         {error && !gaveUp && (
-          <p role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/60 p-4 text-xs font-semibold text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+          <p role="alert" className="rounded-xl bg-accent-pink p-4 text-xs font-bold text-white border-2 border-foreground shadow-hard">
             {error}
           </p>
         )}
 
         {gaveUp && (
-          <div role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/60 p-4 text-xs text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 space-y-2">
+          <div role="alert" className="rounded-xl bg-accent-pink p-4 text-xs text-white border-2 border-foreground shadow-hard space-y-2">
             <p className="font-bold">Lost connection to the backend pipeline.</p>
             <p>Polling stopped after repeated retries. Check if the server is still running.</p>
             <div className="pt-2 flex gap-2">
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700 shadow-sm"
+                className="rounded-lg bg-white border-2 border-foreground px-3 py-1.5 text-xs font-bold text-foreground hover:bg-accent-yellow shadow-hard-active"
               >
                 Retry Polling
               </button>
               <Link
                 to="/dashboard"
-                className="rounded-lg border border-rose-300 dark:border-rose-700 px-3 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/40"
+                className="rounded-lg bg-white border-2 border-foreground px-3 py-1.5 text-xs font-bold text-foreground hover:bg-slate-100 shadow-hard-active"
               >
                 Return to Dashboard
               </Link>
@@ -158,31 +160,31 @@ export function ProcessingPage() {
         )}
 
         {!analysis && !error && (
-          <div className="flex items-center justify-center gap-3 py-12 text-xs font-medium text-slate-500 dark:text-slate-400">
-            <Loader2 size={18} className="animate-spin text-blue-500" aria-hidden="true" />
+          <div className="flex items-center justify-center gap-3 py-12 text-xs font-bold text-slate-500">
+            <Loader2 size={18} className="animate-spin text-accent-violet" aria-hidden="true" strokeWidth={2.5} />
             Initializing pipeline stages and loading files…
           </div>
         )}
 
         {analysis && (
-          <ol className="divide-y divide-slate-100 dark:divide-slate-800/80" aria-live="polite" aria-label="Analysis pipeline progress">
+          <ol className="divide-y-2 divide-foreground/10" aria-live="polite" aria-label="Analysis pipeline progress">
             {analysis.stages.map((stage) => (
-              <li key={stage.stage_key} className="py-3 first:pt-0 last:pb-0 transition-colors">
+              <li key={stage.stage_key} className="py-3.5 first:pt-0 last:pb-0 transition-colors">
                 <div className="flex items-center gap-3">
                   <StageIcon status={stage.status} />
                   <span
-                    className={`flex-1 text-xs font-semibold ${STATUS_TEXT[stage.status]}`}
+                    className={`flex-1 text-xs ${STATUS_TEXT[stage.status]}`}
                   >
                     {stage.stage_label}
                   </span>
                   {stage.duration_ms !== null && stage.status === "done" && (
-                    <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500">{stage.duration_ms} ms</span>
+                    <span className="text-[11px] font-mono font-extrabold text-slate-400">{stage.duration_ms} ms</span>
                   )}
                 </div>
                 {stage.detail && (
                   <p
-                    className={`ml-8 mt-1 text-[11px] leading-relaxed ${
-                      stage.status === "error" ? "text-rose-600 dark:text-rose-400 font-medium" : "text-slate-500 dark:text-slate-400"
+                    className={`ml-8 mt-1 text-[11px] font-bold leading-relaxed ${
+                      stage.status === "error" ? "text-accent-pink" : "text-slate-500"
                     }`}
                   >
                     {stage.detail}
@@ -194,10 +196,10 @@ export function ProcessingPage() {
         )}
 
         {finished && caseId && (
-          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 animate-rise-in">
-            <Link to={`/cases/${caseId}`} className="btn-primary w-full shadow-glow-blue flex items-center justify-center gap-2 py-3 text-sm font-bold">
+          <div className="pt-5 border-t-2 border-foreground/10 animate-rise-in">
+            <Link to={`/cases/${caseId}`} className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 text-sm font-black border-2 border-foreground shadow-hard bg-accent-mint text-foreground hover:bg-accent-yellow hover:shadow-hard-hover active:shadow-hard-active">
               <span>Inspect Full Evidence &amp; Dossier</span>
-              <ArrowRight size={16} aria-hidden="true" />
+              <ArrowRight size={18} aria-hidden="true" strokeWidth={2.5} />
             </Link>
           </div>
         )}

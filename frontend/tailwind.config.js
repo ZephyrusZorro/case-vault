@@ -1,4 +1,4 @@
-﻿/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 export default {
   darkMode: "class",
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
@@ -18,12 +18,17 @@ export default {
           900: "#0A1930",
           950: "#060F1F",
         },
-        dark: {
-          bg: "#070B14",
-          surface: "#0B1120",
-          card: "#0F172A",
-          border: "#1E293B",
-          hover: "#1E293B",
+        cream: "rgb(var(--color-cream) / <alpha-value>)",
+        foreground: "rgb(var(--color-foreground) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        slate: {
+          50: "rgb(var(--color-slate-50) / <alpha-value>)",
+        },
+        accent: {
+          violet: "rgb(var(--color-accent-violet) / <alpha-value>)",
+          pink: "rgb(var(--color-accent-pink) / <alpha-value>)",
+          yellow: "rgb(var(--color-accent-yellow) / <alpha-value>)",
+          mint: "rgb(var(--color-accent-mint) / <alpha-value>)",
         },
         surface: {
           DEFAULT: "#F8FAFC",
@@ -45,39 +50,46 @@ export default {
       },
       fontFamily: {
         sans: [
-          "InterVariable",
-          "Inter",
+          "Plus Jakarta Sans",
           "system-ui",
           "-apple-system",
-          "Segoe UI",
+          "sans-serif",
+        ],
+        heading: [
+          "Outfit",
+          "system-ui",
           "sans-serif",
         ],
       },
+      backgroundColor: {
+        white: "rgb(var(--color-surface) / <alpha-value>)",
+      },
+      borderColor: {
+        white: "rgb(var(--color-surface) / <alpha-value>)",
+      },
       boxShadow: {
-        card: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)",
-        "card-hover": "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-        "glow-blue": "0 0 20px -3px rgba(59, 130, 246, 0.25)",
-        "glow-emerald": "0 0 20px -3px rgba(16, 185, 129, 0.25)",
-        "glow-rose": "0 0 20px -3px rgba(244, 63, 94, 0.25)",
+        hard: "4px 4px 0px 0px rgb(var(--color-foreground))",
+        "hard-hover": "6px 6px 0px 0px rgb(var(--color-foreground))",
+        "hard-active": "2px 2px 0px 0px rgb(var(--color-foreground))",
+        card: "8px 8px 0px 0px rgb(var(--color-foreground))",
+      },
+      transitionTimingFunction: {
+        bounce: "cubic-bezier(0.34,1.56,0.64,1)",
       },
       keyframes: {
-        "fade-in": {
-          from: { opacity: "0", transform: "translateY(4px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0.9)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
         },
-        "rise-in": {
-          from: { opacity: "0", transform: "translateY(12px)" },
-          to: { opacity: "1", transform: "translateY(0)" },
-        },
-        "pulse-subtle": {
-          "0%, 100%": { opacity: "1" },
-          "50%": { opacity: "0.7" },
+        wiggle: {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(3deg)" },
+          "75%": { transform: "rotate(-3deg)" },
         },
       },
       animation: {
-        "fade-in": "fade-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both",
-        "rise-in": "rise-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) both",
-        "pulse-subtle": "pulse-subtle 2s ease-in-out infinite",
+        "pop-in": "pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1) both",
+        wiggle: "wiggle 0.3s ease-in-out",
       },
     },
   },

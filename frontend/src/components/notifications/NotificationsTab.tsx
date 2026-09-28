@@ -108,7 +108,7 @@ export function NotificationsTab({
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
           <div>
-            <h3 className="text-base font-bold text-navy-900 flex items-center gap-2">
+            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
               <User size={18} className="text-blue-600" />
               Applicant Contact & Notification Routing
             </h3>
@@ -148,7 +148,7 @@ export function NotificationsTab({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Aarav Sharma"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-navy-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -158,7 +158,7 @@ export function NotificationsTab({
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="e.g. +91 98765 43210"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-navy-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
             <div>
@@ -168,7 +168,7 @@ export function NotificationsTab({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="e.g. applicant@example.com"
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-navy-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -208,21 +208,21 @@ export function NotificationsTab({
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-4">
             <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Applicant Name</span>
-              <p className="mt-1 text-sm font-bold text-navy-900 truncate">
+              <p className="mt-1 text-sm font-bold text-foreground truncate">
                 {caseData?.applicant_name || "—"}
               </p>
             </div>
 
             <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Phone / WhatsApp</span>
-              <p className="mt-1 text-sm font-semibold text-navy-900 truncate">
+              <p className="mt-1 text-sm font-semibold text-foreground truncate">
                 {caseData?.applicant_phone || "—"}
               </p>
             </div>
 
             <div className="rounded-xl border border-slate-100 bg-slate-50/60 p-3">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Email Address</span>
-              <p className="mt-1 text-sm font-semibold text-navy-900 truncate">
+              <p className="mt-1 text-sm font-semibold text-foreground truncate">
                 {caseData?.applicant_email || "—"}
               </p>
             </div>
@@ -250,7 +250,7 @@ export function NotificationsTab({
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2">
             <Clock size={17} className="text-slate-400" />
-            <h4 className="text-sm font-bold text-navy-900">
+            <h4 className="text-sm font-bold text-foreground">
               Notification Audit Trail ({notifications.length})
             </h4>
           </div>
@@ -277,7 +277,7 @@ export function NotificationsTab({
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 mb-3">
               <MessageSquare size={22} />
             </div>
-            <p className="text-sm font-bold text-navy-900">No discrepancy notices sent yet</p>
+            <p className="text-sm font-bold text-foreground">No discrepancy notices sent yet</p>
             <p className="mt-1 text-xs text-slate-500 max-w-md mx-auto">
               If an identity mismatch, face conflict, or tampering is detected, you can notify the person directly via SMS, WhatsApp, or Email to request clarification or replacement documents.
             </p>
@@ -307,7 +307,7 @@ export function NotificationsTab({
                       {n.channel}
                     </span>
 
-                    <span className="text-xs font-semibold text-navy-900">
+                    <span className="text-xs font-semibold text-foreground">
                       To: <strong className="text-blue-700">{n.recipient}</strong>
                     </span>
 
@@ -353,7 +353,7 @@ export function NotificationsTab({
                 )}
 
                 {n.subject && (
-                  <p className="mt-2.5 text-xs font-bold text-navy-900">
+                  <p className="mt-2.5 text-xs font-bold text-foreground">
                     Subject: {n.subject}
                   </p>
                 )}

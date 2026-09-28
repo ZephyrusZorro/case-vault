@@ -1,19 +1,20 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Loader2, Search, ArrowUpDown, Plus } from "lucide-react";
 import { PageHeader, EmptyState } from "../components/layout/PageHeader";
 import { StatusBadge, statusToBadge } from "../components/dashboard/StatusBadge";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../hooks/useApi";
 import type { HistoryItem } from "../types/api";
 
 type SortKey = "recent" | "risk_desc" | "risk_asc";
 
 const OUTCOME_FILTERS = [
-  { value: "all", label: "All outcomes" },
-  { value: "valid", label: "Valid" },
-  { value: "review", label: "Review" },
-  { value: "high_risk", label: "High Risk" },
-  { value: "unable", label: "Unable to verify" },
+  { value: "all", label: "history.filter_all" },
+  { value: "valid", label: "history.filter_valid" },
+  { value: "review", label: "review" },
+  { value: "high_risk", label: "history.filter_high" },
+  { value: "unable", label: "unable" },
 ];
 
 function fmtDate(iso: string): string {
@@ -33,6 +34,7 @@ function recommendationToStatus(rec: string | null, risk: number | null) {
 }
 
 export function HistoryPage() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [outcome, setOutcome] = useState("all");
@@ -52,12 +54,12 @@ export function HistoryPage() {
   return (
     <div className="mx-auto max-w-6xl animate-fade-in space-y-6">
       <PageHeader
-        title="Screening History"
-        subtitle="Previously processed verification cases and document audit trails"
+        title={t("history.title")}
+        subtitle={t("history.subtitle")}
         actions={
-          <Link to="/screen/new" className="btn-primary shadow-glow-blue flex items-center gap-1.5 text-xs">
+          <Link to="/screen/new" className="btn-primary  flex items-center gap-1.5 text-xs">
             <Plus size={15} aria-hidden="true" />
-            <span>New Case</span>
+            <span>{t("history.new_case")}</span>
           </Link>
         }
       />
@@ -65,12 +67,12 @@ export function HistoryPage() {
       {/* Controls */}
       <div className="card flex flex-wrap items-center gap-3 p-4">
         <div className="relative min-w-[220px] flex-1">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" aria-hidden="true" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 " aria-hidden="true" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, case name or case number…"
+            placeholder={t("history.search")}
             aria-label="Search screening history"
             className="input-field pl-9 text-xs"
           />
@@ -83,7 +85,7 @@ export function HistoryPage() {
         >
           {OUTCOME_FILTERS.map((f) => (
             <option key={f.value} value={f.value}>
-              {f.label}
+              {t(f.label) !== f.label ? t(f.label) : f.label}
             </option>
           ))}
         </select>
@@ -93,35 +95,35 @@ export function HistoryPage() {
           aria-label="Sort cases"
           className="input-field w-auto text-xs"
         >
-          <option value="recent">Newest first</option>
+          <option value="recent">{t("history.filter_newest")}</option>
           <option value="risk_desc">Risk: high to low</option>
           <option value="risk_asc">Risk: low to high</option>
         </select>
       </div>
 
       {error && (
-        <p role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/60 p-4 text-xs font-semibold text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+        <p role="alert" className="rounded-xl bg-rose-50  p-4 text-xs font-semibold text-rose-700  border border-rose-200 ">
           {error}
         </p>
       )}
 
       <div className="card overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500 ">
             <Loader2 size={18} className="animate-spin text-blue-500" aria-hidden="true" /> Loading history…
           </div>
         ) : items.length === 0 ? (
           <EmptyState
-            title="No matching screenings"
+            title={t("history.no_matching")}
             message={
               search || outcome !== "all"
                 ? "Try adjusting the search or filters."
-                : "Screen a set of documents to create your first case."
+                : t("history.screen_set")
             }
             action={
               !search && outcome === "all" ? (
                 <Link to="/screen/new" className="btn-primary">
-                  <Plus size={16} aria-hidden="true" /> New Case
+                  <Plus size={16} aria-hidden="true" /> {t("history.new_case")}
                 </Link>
               ) : undefined
             }
@@ -129,7 +131,7 @@ export function HistoryPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[760px] text-xs">
-              <thead className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400">
+              <thead className="border-b border-slate-100  bg-slate-50/70  text-slate-500 ">
                 <tr>
                   <th scope="col" className="table-head-cell">
                     <span className="inline-flex items-center gap-1 font-bold">
@@ -148,35 +150,35 @@ export function HistoryPage() {
                   <th scope="col" className="table-head-cell font-bold">Date</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+              <tbody className="divide-y divide-slate-100 ">
                 {items.map((item) => (
-                  <tr key={item.id} className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                  <tr key={item.id} className="transition-colors hover:bg-slate-50/80 ">
                     <td className="table-cell font-mono font-bold">
                       <Link
                         to={`/cases/${item.id}`}
-                        className="text-blue-600 dark:text-blue-400 hover:underline"
+                        className="text-blue-600  hover:underline"
                       >
                         #{item.case_number}
                       </Link>
                     </td>
-                    <td className="table-cell font-semibold text-slate-900 dark:text-white">{item.person_name ?? "—"}</td>
-                    <td className="table-cell max-w-[220px] truncate text-slate-600 dark:text-slate-300">{item.case_name}</td>
-                    <td className="table-cell text-slate-500 dark:text-slate-400">{item.document_count}</td>
+                    <td className="table-cell font-semibold text-slate-900 ">{item.person_name ?? "—"}</td>
+                    <td className="table-cell max-w-[220px] truncate text-slate-600 ">{item.case_name}</td>
+                    <td className="table-cell text-slate-500 ">{item.document_count}</td>
                     <td className="table-cell">
                       {item.overall_risk !== null ? (
                         <span
                           className={`font-mono font-extrabold ${
                             item.overall_risk >= 60
-                              ? "text-rose-600 dark:text-rose-400"
+                              ? "text-rose-600 "
                               : item.overall_risk >= 30
-                                ? "text-amber-600 dark:text-amber-400"
-                                : "text-emerald-600 dark:text-emerald-400"
+                                ? "text-amber-600 "
+                                : "text-emerald-600 "
                           }`}
                         >
                           {item.overall_risk}/100
                         </span>
                       ) : (
-                        <span className="text-slate-400 dark:text-slate-500">—</span>
+                        <span className="text-slate-400 ">—</span>
                       )}
                     </td>
                     <td className="table-cell">
@@ -186,7 +188,7 @@ export function HistoryPage() {
                         )}
                       />
                     </td>
-                    <td className="table-cell whitespace-nowrap text-slate-400 dark:text-slate-500">
+                    <td className="table-cell whitespace-nowrap text-slate-400 ">
                       {fmtDate(item.created_at)}
                     </td>
                   </tr>

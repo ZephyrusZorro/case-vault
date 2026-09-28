@@ -25,23 +25,24 @@ import { ReviewDispositionCard } from "../components/documents/ReviewDisposition
 import { useApi } from "../hooks/useApi";
 import type { RiskReport, CaseDetail, DocumentDetail } from "../types/api";
 import { TrendingDown, TrendingUp, ShieldAlert, ShieldCheck, HelpCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 function riskTone(score: number): string {
-  if (score >= 60) return "text-rose-600 dark:text-rose-400";
-  if (score >= 30) return "text-amber-600 dark:text-amber-400";
-  return "text-emerald-600 dark:text-emerald-400";
+  if (score >= 60) return "text-accent-pink";
+  if (score >= 30) return "text-accent-yellow";
+  return "text-accent-mint";
 }
 
 function recommendationLabel(rec: string | null): { text: string; tone: string; icon: typeof ShieldCheck } {
   switch (rec) {
     case "verification_passed":
-      return { text: "Verification Passed", tone: "bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-500/40", icon: ShieldCheck };
+      return { text: "Verification Passed", tone: "bg-accent-mint text-foreground border-2 border-foreground shadow-hard", icon: ShieldCheck };
     case "review_recommended":
-      return { text: "Review Recommended", tone: "bg-amber-50 text-amber-700 ring-amber-600/25 dark:bg-amber-950/60 dark:text-amber-300 dark:ring-amber-500/40", icon: ShieldAlert };
+      return { text: "Review Recommended", tone: "bg-accent-yellow text-foreground border-2 border-foreground shadow-hard", icon: ShieldAlert };
     case "manual_review_required":
-      return { text: "Manual Review Required", tone: "bg-rose-50 text-rose-700 ring-rose-600/20 dark:bg-rose-950/60 dark:text-rose-300 dark:ring-rose-500/40", icon: ShieldAlert };
+      return { text: "Manual Review Required", tone: "bg-accent-pink text-white border-2 border-foreground shadow-hard", icon: ShieldAlert };
     default:
-      return { text: "Unable to Verify", tone: "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800 dark:text-slate-300 dark:ring-slate-700", icon: HelpCircle };
+      return { text: "Unable to Verify", tone: "bg-slate-100 text-slate-600 border-2 border-foreground shadow-hard", icon: HelpCircle };
   }
 }
 
@@ -53,30 +54,30 @@ function RiskPanel({ caseId }: { caseId: string }) {
   const RecIcon = rec.icon;
 
   return (
-    <section className="card mt-6 p-5 border-slate-200/90 dark:border-slate-800" aria-label="Risk assessment">
+    <section className="card mt-6 p-5 border-slate-200/90 " aria-label="Risk assessment">
       <div className="flex flex-wrap items-center gap-8">
         {/* Score */}
         <div className="min-w-[180px]">
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 ">
             Overall Risk Score
           </p>
           <div className="mt-1 flex items-end gap-2">
             <span className={`text-5xl font-black leading-none font-mono ${risk.score !== null ? riskTone(risk.score) : "text-slate-400"}`}>
               {risk.score ?? "—"}
             </span>
-            <span className="pb-1 text-sm font-bold text-slate-400 dark:text-slate-500">/ 100</span>
+            <span className="pb-1 text-sm font-bold text-slate-400 ">/ 100</span>
           </div>
           {/* Score bar */}
-          <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+          <div className="mt-3 h-4 w-full overflow-hidden rounded-full bg-white border-2 border-foreground shadow-hard">
             <div
-              className={`h-full rounded-full transition-all duration-700 ${
-                (risk.score ?? 0) >= 60 ? "bg-rose-500 shadow-glow-rose" : (risk.score ?? 0) >= 30 ? "bg-amber-500" : "bg-emerald-500 shadow-glow-emerald"
+              className={`h-full border-r-2 border-foreground transition-all duration-700 ${
+                (risk.score ?? 0) >= 60 ? "bg-accent-pink" : (risk.score ?? 0) >= 30 ? "bg-accent-yellow" : "bg-accent-mint"
               }`}
               style={{ width: `${risk.score ?? 0}%` }}
             />
           </div>
           {risk.band && (
-            <p className="mt-1.5 text-xs font-extrabold uppercase tracking-wider text-navy-900 dark:text-white">
+            <p className="mt-1.5 text-xs font-extrabold uppercase tracking-wider text-foreground ">
               {risk.band} RISK BAND
             </p>
           )}
@@ -84,7 +85,7 @@ function RiskPanel({ caseId }: { caseId: string }) {
 
         {/* Recommendation */}
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 ">
             Automated Recommendation
           </p>
           <span
@@ -98,21 +99,21 @@ function RiskPanel({ caseId }: { caseId: string }) {
         {/* Contribution ledger */}
         {risk.factors.length > 0 && (
           <div className="min-w-[260px] flex-1">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 ">
               Evidence Factors &amp; Point Adjustments
             </p>
             <ul className="space-y-1.5">
               {risk.factors.map((f) => (
                 <li key={f.factor} className="flex items-start gap-2 text-xs">
                   {f.direction === "increase" ? (
-                    <TrendingUp size={14} className="mt-0.5 shrink-0 text-rose-500" aria-hidden="true" />
+                    <TrendingUp size={16} className="mt-0.5 shrink-0 text-accent-pink" aria-hidden="true" strokeWidth={2.5} />
                   ) : (
-                    <TrendingDown size={14} className="mt-0.5 shrink-0 text-emerald-500" aria-hidden="true" />
+                    <TrendingDown size={16} className="mt-0.5 shrink-0 text-accent-mint" aria-hidden="true" strokeWidth={2.5} />
                   )}
-                  <span className={`font-mono font-bold ${f.direction === "increase" ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                  <span className={`font-mono font-bold ${f.direction === "increase" ? "text-accent-pink" : "text-accent-mint"}`}>
                     {f.score > 0 ? `+${f.score}` : f.score}
                   </span>
-                  <span className="text-slate-700 dark:text-slate-300 font-medium">{f.explanation}</span>
+                  <span className="text-slate-700 font-bold">{f.explanation}</span>
                 </li>
               ))}
             </ul>
@@ -154,15 +155,15 @@ function formatFieldName(key: string): string {
 }
 
 function ConfidenceChip({ value }: { value: number | null }) {
-  if (value === null) return <span className="text-xs text-slate-400 dark:text-slate-500">—</span>;
+  if (value === null) return <span className="text-xs text-slate-400 ">—</span>;
   const tone =
     value >= 85
-      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400"
+      ? "bg-accent-mint text-foreground"
       : value >= 65
-        ? "bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400"
-        : "bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400";
+        ? "bg-accent-yellow text-foreground"
+        : "bg-accent-pink text-white";
   return (
-    <span className={`rounded-md px-2 py-0.5 text-xs font-mono font-bold ${tone}`}>
+    <span className={`rounded-md px-2 py-0.5 border-2 border-foreground shadow-hard text-xs font-mono font-bold ${tone}`}>
       {value.toFixed(0)}%
     </span>
   );
@@ -191,14 +192,14 @@ function DocumentsTab({
             <button
               type="button"
               onClick={() => setSelectedId(d.id)}
-              className={`w-full rounded-xl border p-3 text-left transition-all ${
+              className={`w-full rounded-xl border-2 p-3 text-left transition-all ${
                 selectedId === d.id
-                  ? "border-blue-500 bg-blue-50/80 dark:bg-blue-950/40 shadow-glow-blue"
-                  : "border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  ? "border-foreground bg-accent-yellow shadow-hard-active translate-x-1"
+                  : "border-transparent bg-white hover:border-foreground hover:shadow-hard"
               }`}
             >
-              <p className="truncate text-xs font-bold text-navy-900 dark:text-white">{d.file_name}</p>
-              <p className="mt-1 text-[11px] capitalize text-slate-500 dark:text-slate-400 font-medium">
+              <p className="truncate text-xs font-bold text-foreground ">{d.file_name}</p>
+              <p className="mt-1 text-[11px] capitalize text-slate-500  font-medium">
                 {d.document_type
                   ? `${d.document_type.replace(/_/g, " ")}${
                       d.type_confidence !== null
@@ -215,12 +216,12 @@ function DocumentsTab({
       {/* Detail panel */}
       <div className="card p-5">
         {loading && (
-          <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500 ">
             <Loader2 size={18} className="animate-spin text-blue-500" aria-hidden="true" /> Loading document details…
           </div>
         )}
         {error && (
-          <p role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/60 p-4 text-xs font-semibold text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+          <p role="alert" className="rounded-xl bg-rose-50  p-4 text-xs font-semibold text-rose-700  border border-rose-200 ">
             {error}
           </p>
         )}
@@ -232,16 +233,16 @@ function DocumentsTab({
                 <DocImage
                   src={`/api/documents/${doc.id}/file`}
                   alt={`Uploaded document ${doc.file_name}`}
-                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm"
+                  className="w-full rounded-xl border-2 border-foreground shadow-hard"
                 />
               ) : (
-                <div className="flex aspect-[3/2] items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60">
-                  <FileText size={40} className="text-slate-400 dark:text-slate-600" aria-hidden="true" />
+                <div className="flex aspect-[3/2] items-center justify-center rounded-xl border-2 border-foreground bg-slate-50 shadow-hard">
+                  <FileText size={40} className="text-slate-400" aria-hidden="true" strokeWidth={2.5} />
                 </div>
               )}
-              <dl className="mt-4 space-y-3 text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800/80 pt-3">
+              <dl className="mt-4 space-y-3 text-xs text-slate-500  border-t border-slate-100  pt-3">
                 <div>
-                  <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1">
+                  <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400  mb-1">
                     Document Type
                   </dt>
                   <dd>
@@ -257,7 +258,7 @@ function DocumentsTab({
                 </div>
                 <div className="flex justify-between">
                   <dt>OCR Engine</dt>
-                  <dd className="font-semibold text-navy-900 dark:text-slate-200">{doc.ocr_engine ?? "—"}</dd>
+                  <dd className="font-semibold text-foreground ">{doc.ocr_engine ?? "—"}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt>OCR Confidence</dt>
@@ -265,12 +266,12 @@ function DocumentsTab({
                 </div>
                 <div className="flex justify-between">
                   <dt>SHA-256 Hash</dt>
-                  <dd className="font-mono text-[11px] text-navy-900 dark:text-slate-300">{doc.file_hash_prefix ?? "—"}</dd>
+                  <dd className="font-mono text-[11px] text-foreground ">{doc.file_hash_prefix ?? "—"}</dd>
                 </div>
-                <div className="flex flex-col gap-1 border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
+                <div className="flex flex-col gap-1 border-t border-slate-100  pt-2.5">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="font-bold text-slate-500 dark:text-slate-400">Indic Multilingual OCR (14)</span>
-                    <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold text-indigo-600 dark:bg-indigo-950 dark:text-indigo-300 ring-1 ring-indigo-500/20">
+                    <span className="font-bold text-slate-500 ">Indic Multilingual OCR (14)</span>
+                    <span className="rounded bg-indigo-50 px-1.5 py-0.5 text-[10px] font-bold text-indigo-600   ring-1 ring-indigo-500/20">
                       Extension Ready
                     </span>
                   </div>
@@ -283,32 +284,32 @@ function DocumentsTab({
 
             {/* Extracted fields */}
             <div>
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-navy-900 dark:text-white">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-foreground ">
                 Structured Field Ledger
               </h4>
               {doc.fields.length === 0 ? (
-                <div className="flex items-start gap-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/60 p-4 border border-amber-200 dark:border-amber-800">
+                <div className="flex items-start gap-2.5 rounded-xl bg-amber-50  p-4 border border-amber-200 ">
                   <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-500" aria-hidden="true" />
-                  <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-300">
+                  <p className="text-xs leading-relaxed text-amber-800 ">
                     No structured fields could be extracted. Check document scan quality.
                   </p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
-                    <thead className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400">
+                    <thead className="border-b border-slate-100  bg-slate-50/70  text-slate-500 ">
                       <tr>
                         <th scope="col" className="table-head-cell">Field</th>
                         <th scope="col" className="table-head-cell">Normalized Value</th>
                         <th scope="col" className="table-head-cell">Conf.</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                    <tbody className="divide-y divide-slate-100 ">
                       {doc.fields.map((f, i) => (
-                        <tr key={`${i}-${f.field_name}-${f.raw_value}`} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                          <td className="table-cell whitespace-nowrap font-medium text-slate-600 dark:text-slate-400">{formatFieldName(f.field_name)}</td>
+                        <tr key={`${i}-${f.field_name}-${f.raw_value}`} className="hover:bg-slate-50/50 ">
+                          <td className="table-cell whitespace-nowrap font-medium text-slate-600 ">{formatFieldName(f.field_name)}</td>
                           <td className="table-cell">
-                            <span className="font-bold text-navy-900 dark:text-slate-100">{f.normalized_value ?? f.raw_value}</span>
+                            <span className="font-bold text-foreground ">{f.normalized_value ?? f.raw_value}</span>
                           </td>
                           <td className="table-cell"><ConfidenceChip value={f.confidence} /></td>
                         </tr>
@@ -318,7 +319,7 @@ function DocumentsTab({
                 </div>
               )}
 
-              <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-400 dark:text-slate-500">
+              <div className="mt-4 flex items-center gap-2 text-[11px] text-slate-400 ">
                 <CheckCircle2 size={13} aria-hidden="true" className="text-blue-500" />
                 Evidence extracted deterministically via multi-pass OCR &amp; MRZ parser.
               </div>
@@ -331,6 +332,7 @@ function DocumentsTab({
 }
 
 export function CaseDetailPage() {
+  const { t } = useTranslation();
   const { caseId } = useParams<{ caseId: string }>();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("Overview");
@@ -358,14 +360,14 @@ export function CaseDetailPage() {
       <button
         type="button"
         onClick={() => navigate("/history")}
-        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 transition-colors hover:text-navy-900 dark:hover:text-white"
+        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500  transition-colors hover:text-navy-900 "
       >
         <ArrowLeft size={14} aria-hidden="true" /> Back to screening history
       </button>
 
       <PageHeader
-        title={caseData ? `Case #${caseData.case_number} — ${caseData.case_name}` : "Case Dossier"}
-        subtitle="Multi-modal forensic evidence and explainable validation workspace"
+        title={caseData ? `Case #${caseData.case_number} — ${caseData.case_name}` : t("cases.detail_title")}
+        subtitle={t("cases.detail_subtitle")}
         actions={
           caseData && (
             <div className="flex items-center gap-2">
@@ -374,16 +376,16 @@ export function CaseDetailPage() {
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("idshield:voice-speak-brief"));
                 }}
-                className="btn-secondary flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800 hover:bg-blue-50 dark:hover:bg-blue-950/50"
+                className="btn-secondary flex items-center gap-1.5 text-xs text-blue-600  border-blue-200  hover:bg-blue-50 "
                 title="Read plain oral summary of this case for accessibility"
               >
                 <Volume2 size={13} />
-                <span>Voice Summary</span>
+                <span>{t("cases.voice_summary")}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setNotificationModalOpen(true)}
-                className="btn-primary shadow-glow-blue flex items-center gap-2 text-xs"
+                className="btn-primary  flex items-center gap-2 text-xs"
               >
                 <Send size={13} />
                 <span>Notify Applicant</span>
@@ -394,8 +396,7 @@ export function CaseDetailPage() {
       />
 
       <div className="card overflow-hidden">
-        {/* Modern Tab Strip */}
-        <div role="tablist" aria-label="Case sections" className="flex gap-1 overflow-x-auto border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-900/60 px-3 pt-2">
+        <div role="tablist" aria-label="Case sections" className="flex gap-1 overflow-x-auto border-b-2 border-foreground bg-slate-50 px-3 pt-2">
           {TABS.map((t) => (
             <button
               key={t}
@@ -403,10 +404,10 @@ export function CaseDetailPage() {
               aria-selected={tab === t}
               type="button"
               onClick={() => setTab(t)}
-              className={`whitespace-nowrap rounded-t-lg px-4 py-2.5 text-xs font-bold transition-all ${
+              className={`whitespace-nowrap rounded-t-xl px-4 py-2.5 text-xs font-bold transition-all border-2 border-b-0 ${
                 tab === t
-                  ? "border-x border-t border-slate-200/90 dark:border-slate-800 bg-white dark:bg-dark-surface text-blue-600 dark:text-blue-400 shadow-sm"
-                  : "text-slate-500 dark:text-slate-400 hover:text-navy-900 dark:hover:text-white hover:bg-slate-100/50 dark:hover:bg-slate-800/40"
+                  ? "border-foreground bg-white text-foreground shadow-hard-active translate-y-0.5 z-10"
+                  : "border-transparent text-slate-500 hover:text-foreground hover:bg-slate-100/50"
               }`}
             >
               {t}
@@ -416,12 +417,12 @@ export function CaseDetailPage() {
 
         <div className="p-6">
           {loading && (
-            <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500 dark:text-slate-400">
+            <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500 ">
               <Loader2 size={18} className="animate-spin text-blue-500" aria-hidden="true" /> Loading case dossier…
             </div>
           )}
           {error && (
-            <p role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/60 p-4 text-xs font-semibold text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+            <p role="alert" className="rounded-xl bg-rose-50  p-4 text-xs font-semibold text-rose-700  border border-rose-200 ">
               {error}
             </p>
           )}
@@ -429,16 +430,16 @@ export function CaseDetailPage() {
           {caseData && tab === "Overview" && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Pipeline Status</p>
-                  <p className="mt-1 text-sm font-extrabold capitalize text-navy-900 dark:text-white">{caseData.status}</p>
+                <div className="rounded-xl border border-slate-200/80  bg-slate-50/50  p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ">Pipeline Status</p>
+                  <p className="mt-1 text-sm font-extrabold capitalize text-foreground ">{caseData.status}</p>
                 </div>
-                <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Evidence Count</p>
-                  <p className="mt-1 text-sm font-extrabold text-navy-900 dark:text-white">{caseData.documents.length} Docs</p>
+                <div className="rounded-xl border border-slate-200/80  bg-slate-50/50  p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ">Evidence Count</p>
+                  <p className="mt-1 text-sm font-extrabold text-foreground ">{caseData.documents.length} Docs</p>
                 </div>
-                <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Risk Score</p>
+                <div className="rounded-xl border border-slate-200/80  bg-slate-50/50  p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ">Risk Score</p>
                   {caseData.overall_risk !== null ? (
                     <p className={`mt-1 text-lg font-mono font-black ${riskTone(caseData.overall_risk)}`}>
                       {caseData.overall_risk}/100
@@ -447,8 +448,8 @@ export function CaseDetailPage() {
                     <p className="mt-1 text-sm font-bold text-slate-400">Pending</p>
                   )}
                 </div>
-                <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Recommendation</p>
+                <div className="rounded-xl border border-slate-200/80  bg-slate-50/50  p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 ">Recommendation</p>
                   {caseData.recommendation ? (
                     (() => {
                       const rec = recommendationLabel(caseData.recommendation);
@@ -470,12 +471,12 @@ export function CaseDetailPage() {
 
               {caseData.documents.length > 0 ? (
                 <div>
-                  <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-navy-900 dark:text-white">
+                  <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-foreground ">
                     Submitted Evidence Scans
                   </h4>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                     {caseData.documents.map((d) => (
-                      <figure key={d.id} className="overflow-hidden rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-card">
+                      <figure key={d.id} className="overflow-hidden rounded-xl border border-slate-200/80  bg-white  shadow-card">
                         {d.has_preview ? (
                           <DocImage
                             src={`/api/documents/${d.id}/file`}
@@ -484,12 +485,12 @@ export function CaseDetailPage() {
                             fallbackClassName="aspect-[3/2] w-full"
                           />
                         ) : (
-                          <div className="flex aspect-[3/2] items-center justify-center bg-slate-50 dark:bg-slate-800">
-                            <FileText size={32} className="text-slate-400 dark:text-slate-600" aria-hidden="true" />
+                          <div className="flex aspect-[3/2] items-center justify-center bg-slate-50 ">
+                            <FileText size={32} className="text-slate-400 " aria-hidden="true" />
                           </div>
                         )}
-                        <figcaption className="p-3 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
-                          <p className="truncate text-xs font-bold text-navy-900 dark:text-white" title={d.file_name}>
+                        <figcaption className="p-3 border-t border-slate-100  space-y-2">
+                          <p className="truncate text-xs font-bold text-foreground " title={d.file_name}>
                             {d.file_name}
                           </p>
                           <DocumentTypeSelector
@@ -506,7 +507,7 @@ export function CaseDetailPage() {
                     <button
                       type="button"
                       onClick={() => setTab("Comparison")}
-                      className="btn-secondary text-xs text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+                      className="btn-secondary text-xs text-blue-600  border-blue-200 "
                     >
                       <Layers size={13} />
                       <span>Inspect Evidence Graph (12)</span>
@@ -520,7 +521,7 @@ export function CaseDetailPage() {
                     <button
                       type="button"
                       onClick={() => setNotificationModalOpen(true)}
-                      className="btn-secondary text-xs text-slate-600 dark:text-slate-300"
+                      className="btn-secondary text-xs text-slate-600 "
                     >
                       <MessageSquare size={13} />
                       <span>Send Discrepancy Notice</span>
@@ -528,7 +529,7 @@ export function CaseDetailPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-500 dark:text-slate-400">No documents in this case yet.</p>
+                <p className="text-xs text-slate-500 ">No documents in this case yet.</p>
               )}
             </div>
           )}

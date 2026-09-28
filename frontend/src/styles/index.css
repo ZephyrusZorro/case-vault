@@ -1,16 +1,38 @@
-﻿@tailwind base;
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-cream: 255 253 245; /* #FFFDF5 */
+    --color-foreground: 30 41 59; /* #1E293B */
+    --color-surface: 255 255 255; /* #ffffff */
+    --color-slate-50: 248 250 252; /* #f8fafc */
+    --color-accent-mint: 44 244 168; /* #2CF4A8 */
+    --color-accent-pink: 255 107 139; /* #FF6B8B */
+    --color-accent-yellow: 255 213 79; /* #FFD54F */
+    --color-accent-violet: 139 92 246; /* #8B5CF6 */
+  }
+  
+  .dark {
+    --color-cream: 11 15 25; /* #0B0F19 */
+    --color-foreground: 248 250 252; /* #F8FAFC */
+    --color-surface: 30 41 59; /* #1E293B */
+    --color-slate-50: 2 6 23; /* #020617 */
+    --color-accent-mint: 52 211 153; /* #34D399 */
+    --color-accent-pink: 244 114 182; /* #F472B6 */
+    --color-accent-yellow: 252 211 77; /* #FCD34D */
+    --color-accent-violet: 167 139 250; /* #A78BFA */
+  }
+
   html {
     @apply antialiased scroll-smooth;
   }
   body {
-    @apply bg-[#F8FAFC] text-slate-900 font-sans transition-colors duration-200;
+    @apply bg-cream text-foreground font-sans transition-colors duration-200;
   }
-  html.dark body {
-    @apply bg-[#070B14] text-slate-100;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
   }
 
   /* Custom Sleek Scrollbar */
@@ -22,61 +44,55 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply rounded-full bg-slate-300 dark:bg-slate-700/80;
+    @apply rounded-full bg-slate-300;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-600;
+    @apply bg-slate-400;
   }
 }
 
 @layer components {
   .card {
-    @apply rounded-2xl border border-slate-200/90 bg-white shadow-card transition-all duration-200;
-  }
-  html.dark .card {
-    @apply border-slate-800/90 bg-[#0F172A]/90 shadow-none backdrop-blur-md;
+    @apply rounded-xl border-2 border-foreground bg-white shadow-card transition-all duration-300 ease-bounce;
   }
 
   .card-hover {
-    @apply hover:border-slate-300 hover:shadow-card-hover dark:hover:border-slate-700 dark:hover:bg-slate-900/80;
+    @apply hover:-rotate-1 hover:scale-[1.02] hover:shadow-[10px_10px_0px_0px_#E2E8F0];
   }
 
   .glass-panel {
-    @apply backdrop-blur-md bg-white/90 border border-slate-200/90 dark:bg-[#0F172A]/90 dark:border-slate-800/90;
+    @apply bg-white border-2 border-foreground shadow-card;
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5
-      text-xs font-bold text-white shadow-sm transition-all duration-150
-      hover:bg-blue-500 hover:shadow-glow-blue active:scale-[0.98]
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-accent-violet border-2 border-foreground px-5 py-3
+      text-sm font-bold text-white shadow-hard transition-all duration-300 ease-bounce
+      hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-hard-hover
+      active:translate-y-[2px] active:translate-x-[2px] active:shadow-hard-active
       focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
-      focus-visible:outline-blue-600 disabled:pointer-events-none disabled:opacity-50;
+      focus-visible:outline-accent-violet disabled:pointer-events-none disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300
-      bg-white px-4 py-2.5 text-xs font-bold text-slate-800 transition-all duration-150
-      hover:bg-slate-100 hover:text-slate-900 hover:border-slate-400 active:scale-[0.98]
-      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400
-      disabled:pointer-events-none disabled:opacity-50
-      dark:border-slate-700 dark:bg-[#0F172A] dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:border-slate-600;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-foreground
+      bg-transparent px-5 py-3 text-sm font-bold text-foreground transition-all duration-300 ease-bounce
+      hover:bg-accent-yellow active:scale-[0.98]
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground
+      disabled:pointer-events-none disabled:opacity-50;
   }
 
   .input-field {
-    @apply w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs font-medium
-      text-slate-900 placeholder:text-slate-400 transition-all duration-150
-      focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20
-      dark:border-slate-700 dark:bg-slate-900/90 dark:text-slate-100 dark:placeholder:text-slate-500
-      dark:focus:border-blue-500 dark:focus:ring-blue-500/20;
+    @apply w-full rounded-xl border-2 border-foreground bg-white px-3.5 py-2.5 text-xs font-bold
+      text-foreground placeholder:text-slate-400 transition-all duration-150 shadow-sm
+      focus:border-accent-pink focus:outline-none focus:ring-0 focus:shadow-hard;
   }
 
   .table-head-cell {
-    @apply px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider
-      text-slate-600 dark:text-slate-400;
+    @apply px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-foreground/70;
   }
 
   .table-cell {
-    @apply px-4 py-3.5 text-xs text-slate-800 dark:text-slate-200;
+    @apply px-4 py-3.5 text-sm font-medium text-foreground;
   }
 }
 

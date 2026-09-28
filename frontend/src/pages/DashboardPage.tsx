@@ -1,4 +1,4 @@
-﻿import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Files,
   CheckCircle2,
@@ -13,13 +13,14 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { MetricCard, SkeletonRows } from "../components/dashboard/MetricCard";
 import { StatusBadge, statusToBadge } from "../components/dashboard/StatusBadge";
 import { EmptyState } from "../components/layout/PageHeader";
+import { useTranslation } from "react-i18next";
 import { useApi } from "../hooks/useApi";
 import type { DashboardSummary, RecentScreeningsResponse } from "../types/api";
 
 const DONUT_COLORS: Record<string, string> = {
-  Valid: "#10B981",
-  Review: "#F59E0B",
-  "High Risk": "#EF4444",
+  Valid: "#2CF4A8", // accent-mint
+  Review: "#FFD54F", // accent-yellow
+  "High Risk": "#FF6B8B", // accent-pink
 };
 
 function timeAgo(iso: string): string {
@@ -33,6 +34,7 @@ function timeAgo(iso: string): string {
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const summary = useApi<DashboardSummary>("/api/dashboard/summary");
   const recent = useApi<RecentScreeningsResponse>("/api/dashboard/recent");
 
@@ -49,29 +51,29 @@ export function DashboardPage() {
   return (
     <div className="mx-auto max-w-7xl animate-fade-in space-y-6">
       {/* Top Banner with Quick Actions */}
-      <div className="card relative overflow-hidden p-5 sm:p-6 bg-gradient-to-r from-blue-900/10 via-indigo-900/10 to-slate-900/10 dark:from-blue-950/40 dark:via-indigo-950/30 dark:to-dark-surface border-blue-200/40 dark:border-blue-900/40">
+      <div className="card relative overflow-hidden p-5 sm:p-6 bg-accent-violet border-2 border-foreground shadow-hard text-white">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 dark:bg-blue-500/20 px-2.5 py-0.5 text-xs font-semibold text-blue-600 dark:text-blue-400">
-                <Sparkles size={13} aria-hidden="true" />
-                Live Verification Engine Active
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent-mint px-2.5 py-0.5 text-xs font-extrabold text-slate-900 border-2 border-foreground shadow-hard-active">
+                <Sparkles size={13} aria-hidden="true" strokeWidth={2.5} />
+                {t("dashboard.live_active")}
               </span>
             </div>
-            <h2 className="mt-2 text-xl font-extrabold text-navy-900 dark:text-white">
-              Identity Forensics Operations Hub
+            <h2 className="mt-3 text-2xl font-black text-white">
+              {t("dashboard.title")}
             </h2>
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 max-w-xl">
-              11-stage automated screening evaluating ICAO MRZ integrity, visual tampering ELA, facial biometrics, and multi-document consistency.
+            <p className="mt-2 text-sm font-bold text-white/90 max-w-xl">
+              {t("dashboard.subtitle")}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
             <Link
               to="/screen/new"
-              className="btn-primary flex items-center gap-1.5 shadow-glow-blue"
+              className="btn-primary flex items-center gap-1.5 "
             >
               <Plus size={16} aria-hidden="true" />
-              <span>Screen New Document</span>
+              <span>{t("dashboard.screen_new")}</span>
             </Link>
           </div>
         </div>
@@ -80,35 +82,35 @@ export function DashboardPage() {
       {/* Metric cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <MetricCard
-          label="Total Screened"
+          label={t("dashboard.total_screened")}
           value={s?.total_screened ?? "—"}
           icon={Files}
           tone="navy"
           loading={summary.loading}
         />
         <MetricCard
-          label="Valid / Passed"
+          label={t("dashboard.valid_passed")}
           value={s?.valid ?? "—"}
           icon={CheckCircle2}
           tone="green"
           loading={summary.loading}
         />
         <MetricCard
-          label="Under Review"
+          label={t("dashboard.under_review")}
           value={s?.under_review ?? "—"}
           icon={AlertTriangle}
           tone="amber"
           loading={summary.loading}
         />
         <MetricCard
-          label="High Risk"
+          label={t("dashboard.high_risk")}
           value={s?.high_risk ?? "—"}
           icon={ShieldAlert}
           tone="red"
           loading={summary.loading}
         />
         <MetricCard
-          label="Avg Risk Score"
+          label={t("dashboard.avg_risk")}
           value={s ? (s.average_risk_score ?? "—") : "—"}
           icon={Gauge}
           tone="blue"
@@ -117,38 +119,38 @@ export function DashboardPage() {
       </div>
 
       {(summary.error || recent.error) && (
-        <p role="alert" className="rounded-lg bg-rose-50 dark:bg-rose-950/60 p-4 text-xs font-semibold text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+        <p role="alert" className="rounded-xl bg-accent-pink p-4 text-xs font-bold text-white border-2 border-foreground shadow-hard">
           Could not load telemetry: {summary.error ?? recent.error}
         </p>
       )}
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         {/* Recent screenings */}
-        <section className="card xl:col-span-2 overflow-hidden" aria-labelledby="recent-heading">
-          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 px-5 py-4">
-            <h3 id="recent-heading" className="text-sm font-bold text-navy-900 dark:text-white flex items-center gap-2">
-              Recent Verification Cases
+        <section className="card xl:col-span-2 overflow-hidden bg-white border-2 border-foreground shadow-hard rounded-2xl" aria-labelledby="recent-heading">
+          <div className="flex items-center justify-between border-b-2 border-foreground/10 px-5 py-4">
+            <h3 id="recent-heading" className="text-sm font-extrabold text-foreground flex items-center gap-2">
+              {t("dashboard.recent_cases")}
             </h3>
             <Link
               to="/history"
-              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+              className="text-xs font-bold text-foreground hover:bg-accent-yellow border-2 border-transparent hover:border-foreground hover:shadow-hard-active px-2 py-1 rounded-lg transition-all flex items-center gap-1"
             >
-              <span>View full history</span>
-              <ArrowRight size={12} aria-hidden="true" />
+              <span>{t("dashboard.view_history")}</span>
+              <ArrowRight size={12} aria-hidden="true" strokeWidth={2.5} />
             </Link>
           </div>
 
           {recent.loading ? (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px]">
-                <thead className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
+                <thead className="border-b-2 border-foreground/10 bg-slate-50">
                   <tr>
-                    <th scope="col" className="table-head-cell">Case ID</th>
-                    <th scope="col" className="table-head-cell">Document Type</th>
-                    <th scope="col" className="table-head-cell">Name</th>
-                    <th scope="col" className="table-head-cell">Risk</th>
-                    <th scope="col" className="table-head-cell">Status</th>
-                    <th scope="col" className="table-head-cell">Time</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.case_id")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.document_type")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.name")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.risk")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.status")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.time")}</th>
                   </tr>
                 </thead>
                 <SkeletonRows rows={4} cols={6} />
@@ -157,31 +159,31 @@ export function DashboardPage() {
           ) : recent.data && recent.data.items.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[560px]">
-                <thead className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
+                <thead className="border-b-2 border-foreground/10 bg-slate-50">
                   <tr>
-                    <th scope="col" className="table-head-cell">Case ID</th>
-                    <th scope="col" className="table-head-cell">Document Type</th>
-                    <th scope="col" className="table-head-cell">Name</th>
-                    <th scope="col" className="table-head-cell">Risk</th>
-                    <th scope="col" className="table-head-cell">Status</th>
-                    <th scope="col" className="table-head-cell">Time</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.case_id")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.document_type")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.name")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.risk")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.status")}</th>
+                    <th scope="col" className="table-head-cell">{t("dashboard.time")}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                <tbody className="divide-y-2 divide-foreground/10">
                   {recent.data.items.map((item) => (
-                    <tr key={item.case_id} className="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
-                      <td className="table-cell font-mono font-bold text-navy-900 dark:text-white">
+                    <tr key={item.case_id} className="transition-colors hover:bg-accent-yellow">
+                      <td className="table-cell font-mono font-extrabold text-foreground">
                         <Link
                           to={`/cases/${item.case_id}`}
-                          className="text-blue-600 dark:text-blue-400 hover:underline"
+                          className="hover:underline"
                         >
                           #{item.case_number}
                         </Link>
                       </td>
-                      <td className="table-cell text-slate-600 dark:text-slate-300 font-medium">
+                      <td className="table-cell text-foreground/80 font-medium">
                         {item.document_type ?? "—"}
                       </td>
-                      <td className="table-cell font-semibold text-slate-800 dark:text-slate-200">
+                      <td className="table-cell font-semibold text-foreground">
                         {item.person_name ?? item.case_name}
                       </td>
                       <td className="table-cell">
@@ -189,10 +191,10 @@ export function DashboardPage() {
                           <span
                             className={`font-mono font-extrabold ${
                               item.risk_score >= 60
-                                ? "text-rose-600 dark:text-rose-400"
+                                ? "text-accent-pink"
                                 : item.risk_score >= 30
-                                  ? "text-amber-600 dark:text-amber-400"
-                                  : "text-emerald-600 dark:text-emerald-400"
+                                  ? "text-accent-yellow"
+                                  : "text-accent-mint"
                             }`}
                           >
                             {item.risk_score}/100
@@ -204,7 +206,7 @@ export function DashboardPage() {
                       <td className="table-cell">
                         <StatusBadge status={statusToBadge(item.status)} />
                       </td>
-                      <td className="table-cell whitespace-nowrap text-slate-400 dark:text-slate-500 text-xs">
+                      <td className="table-cell whitespace-nowrap text-foreground/60 text-xs">
                         {timeAgo(item.created_at)}
                       </td>
                     </tr>
@@ -214,8 +216,8 @@ export function DashboardPage() {
             </div>
           ) : (
             <EmptyState
-              title="No screenings yet"
-              message="Create your first case to begin screening identity documents."
+              title={t("dashboard.no_screenings")}
+              message={t("dashboard.create_first")}
               action={
                 <Link to="/screen/new" className="btn-primary">
                   <Plus size={16} aria-hidden="true" /> New Case
@@ -226,10 +228,10 @@ export function DashboardPage() {
         </section>
 
         {/* Risk distribution */}
-        <section className="card flex flex-col" aria-labelledby="distribution-heading">
-          <div className="border-b border-slate-100 dark:border-slate-800/80 px-5 py-4">
-            <h3 id="distribution-heading" className="text-sm font-bold text-navy-900 dark:text-white">
-              Risk Distribution Breakdown
+        <section className="card flex flex-col bg-white border-2 border-foreground shadow-hard rounded-2xl" aria-labelledby="distribution-heading">
+          <div className="border-b-2 border-foreground/10 px-5 py-4">
+            <h3 id="distribution-heading" className="text-sm font-extrabold text-foreground">
+              {t("dashboard.risk_distribution")}
             </h3>
           </div>
           <div className="flex flex-1 items-center justify-center p-4">
@@ -275,8 +277,8 @@ export function DashboardPage() {
                         style={{ backgroundColor: DONUT_COLORS[d.name] }}
                         aria-hidden="true"
                       />
-                      <span className="font-medium text-slate-600 dark:text-slate-300">{d.name}</span>
-                      <span className="font-bold text-navy-900 dark:text-white ml-auto">{d.value}</span>
+                      <span className="font-medium text-foreground/80">{d.name}</span>
+                      <span className="font-bold text-foreground  ml-auto">{d.value}</span>
                     </li>
                   ))}
                 </ul>

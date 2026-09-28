@@ -80,37 +80,37 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
   }, [hoveredNodeId, selectedNode, data.edges]);
 
   return (
-    <div className="card overflow-hidden border border-slate-200/90 dark:border-slate-800 bg-slate-900/5 dark:bg-slate-950/70 p-5 backdrop-blur-sm">
+    <div className="card overflow-hidden border border-slate-200/90  bg-slate-900/5  p-5 backdrop-blur-sm">
       {/* Header bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80 dark:border-slate-800/80 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200/80  pb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500 ring-1 ring-blue-500/20">
               <Layers size={14} />
             </span>
-            <h3 className="text-sm font-bold text-navy-900 dark:text-white">
+            <h3 className="text-sm font-bold text-foreground ">
               Identity Evidence Graph (Workflow Module 12)
             </h3>
-            <span className="rounded-full bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 text-[10px] font-bold text-blue-600 dark:text-blue-300 ring-1 ring-blue-500/30">
+            <span className="rounded-full bg-blue-50  px-2 py-0.5 text-[10px] font-bold text-blue-600  ring-1 ring-blue-500/30">
               Interactive Topology
             </span>
           </div>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 ">
             Connects applicant identity to evidence scans and extracted attributes. Color-coded edges show multi-source agreement or conflict.
           </p>
         </div>
 
         {/* Legend */}
         <div className="flex items-center gap-4 text-xs font-semibold">
-          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 shadow-glow-emerald" />
+          <div className="flex items-center gap-1.5 text-emerald-600 ">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 " />
             <span>Consensus Match</span>
           </div>
-          <div className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
-            <span className="h-2 w-2 rounded-full bg-rose-500 shadow-glow-rose" />
+          <div className="flex items-center gap-1.5 text-rose-600 ">
+            <span className="h-2 w-2 rounded-full bg-rose-500 " />
             <span>Discrepancy / Conflict</span>
           </div>
-          <div className="flex items-center gap-1.5 text-blue-500 dark:text-blue-400">
+          <div className="flex items-center gap-1.5 text-blue-500 ">
             <span className="h-2 w-2 rounded-full bg-blue-500" />
             <span>Document Link</span>
           </div>
@@ -226,7 +226,7 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
           >
             <circle
               r={36}
-              className="fill-white dark:fill-slate-900 stroke-blue-500/80 transition-all duration-300 group-hover:stroke-blue-400 group-hover:scale-105"
+              className="fill-white  stroke-blue-500/80 transition-all duration-300 group-hover:stroke-blue-400 group-hover:scale-105"
               strokeWidth={3}
             />
             <foreignObject x={-28} y={-28} width={56} height={56}>
@@ -237,14 +237,14 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
             <text
               y={52}
               textAnchor="middle"
-              className="fill-slate-900 dark:fill-white font-bold text-xs"
+              className="fill-slate-900  font-bold text-xs"
             >
               {personNode.label.length > 18 ? `${personNode.label.slice(0, 16)}…` : personNode.label}
             </text>
             <text
               y={67}
               textAnchor="middle"
-              className="fill-slate-500 dark:fill-slate-400 text-[10px] font-mono"
+              className="fill-slate-500  text-[10px] font-mono"
             >
               Subject Identity
             </text>
@@ -274,26 +274,26 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
                   rx={10}
                   className={`transition-all duration-300 ${
                     isSelected || isHovered
-                      ? "fill-blue-50 dark:fill-blue-950/80 stroke-blue-500 stroke-2"
-                      : "fill-white dark:fill-slate-900/90 stroke-slate-200 dark:stroke-slate-800 stroke-1 group-hover:stroke-blue-400"
+                      ? "fill-blue-50  stroke-blue-500 stroke-2"
+                      : "fill-white  stroke-slate-200  stroke-1 group-hover:stroke-blue-400"
                   }`}
                 />
                 <foreignObject x={-75} y={-14} width={28} height={28}>
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100  text-slate-600 ">
                     <FileText size={15} />
                   </div>
                 </foreignObject>
                 <text
                   x={-40}
                   y={-2}
-                  className="fill-slate-900 dark:fill-white font-bold text-xs"
+                  className="fill-slate-900  font-bold text-xs"
                 >
                   {doc.label}
                 </text>
                 <text
                   x={-40}
                   y={12}
-                  className="fill-slate-400 dark:text-slate-500 text-[10px] font-medium"
+                  className="fill-slate-400  text-[10px] font-medium"
                 >
                   {doc.confidence ? `${Math.round(doc.confidence)}% conf.` : "Verified scan"}
                 </text>
@@ -326,18 +326,18 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
                   rx={10}
                   className={`transition-all duration-300 ${
                     isConflict
-                      ? "fill-rose-50/90 dark:fill-rose-950/70 stroke-rose-500 stroke-2"
+                      ? "fill-rose-50/90  stroke-rose-500 stroke-2"
                       : isSelected || isHovered
-                      ? "fill-emerald-50 dark:fill-emerald-950/80 stroke-emerald-500 stroke-2"
-                      : "fill-white dark:fill-slate-900/90 stroke-slate-200 dark:stroke-slate-800 stroke-1 group-hover:stroke-emerald-400"
+                      ? "fill-emerald-50  stroke-emerald-500 stroke-2"
+                      : "fill-white  stroke-slate-200  stroke-1 group-hover:stroke-emerald-400"
                   }`}
                 />
                 <foreignObject x={-80} y={-14} width={28} height={28}>
                   <div
                     className={`flex h-7 w-7 items-center justify-center rounded-lg ${
                       isConflict
-                        ? "bg-rose-100 dark:bg-rose-900/60 text-rose-600 dark:text-rose-400"
-                        : "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-400"
+                        ? "bg-rose-100  text-rose-600 "
+                        : "bg-emerald-100  text-emerald-600 "
                     }`}
                   >
                     {isConflict ? <AlertTriangle size={15} /> : <CheckCircle2 size={15} />}
@@ -346,7 +346,7 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
                 <text
                   x={-45}
                   y={-2}
-                  className="fill-slate-900 dark:fill-white font-bold text-xs"
+                  className="fill-slate-900  font-bold text-xs"
                 >
                   {field.label.split(":")[0]}
                 </text>
@@ -354,7 +354,7 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
                   x={-45}
                   y={12}
                   className={`text-[10px] font-mono font-bold ${
-                    isConflict ? "fill-rose-600 dark:fill-rose-400" : "fill-emerald-600 dark:fill-emerald-400"
+                    isConflict ? "fill-rose-600 " : "fill-emerald-600 "
                   }`}
                 >
                   {field.value && field.value.length > 16 ? `${field.value.slice(0, 14)}…` : field.value}
@@ -367,14 +367,14 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
 
       {/* Selected Node Details Drawer */}
       {selectedNode && (
-        <div className="mt-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm animate-fade-in">
+        <div className="mt-4 rounded-xl border border-slate-200/90  bg-white  p-4 shadow-sm animate-fade-in">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+              <span className="p-1.5 rounded-lg bg-blue-50  text-blue-600 ">
                 <Info size={16} />
               </span>
               <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 ">
                   Node Details: {selectedNode.label}
                 </h4>
                 <p className="text-[11px] text-slate-500 capitalize">
@@ -384,7 +384,7 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
             </div>
             <button
               onClick={() => setSelectedNode(null)}
-              className="text-xs font-bold text-slate-400 hover:text-slate-600 dark:hover:text-white"
+              className="text-xs font-bold text-slate-400 hover:text-slate-600 "
             >
               Close
             </button>
@@ -392,9 +392,9 @@ export function EvidenceGraph({ data, applicantName, overallRisk }: EvidenceGrap
           {selectedNode.details && (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
               {Object.entries(selectedNode.details).map(([key, val]) => (
-                <div key={key} className="rounded-lg bg-slate-50 dark:bg-slate-800/60 p-2">
+                <div key={key} className="rounded-lg bg-slate-50  p-2">
                   <span className="text-[10px] uppercase font-bold text-slate-400 block">{key.replace(/_/g, " ")}</span>
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate block">
+                  <span className="font-semibold text-slate-800  truncate block">
                     {String(val)}
                   </span>
                 </div>

@@ -170,7 +170,7 @@ export function NotificationModal({
               <MessageSquare size={18} />
             </div>
             <div>
-              <h3 id="modal-title" className="text-base font-bold text-navy-900">
+              <h3 id="modal-title" className="text-base font-bold text-foreground">
                 Notify Applicant: Discrepancy Notice
               </h3>
               <p className="text-xs text-slate-500">
@@ -304,7 +304,7 @@ export function NotificationModal({
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value)}
                   placeholder={channel === "email" ? "e.g. applicant@example.com" : "e.g. +91 98765 43210"}
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-foreground shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -318,7 +318,7 @@ export function NotificationModal({
                     type="text"
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-navy-900 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-foreground shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
               )}
@@ -335,7 +335,7 @@ export function NotificationModal({
                   rows={channel === "email" ? 8 : 5}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white p-3.5 text-sm text-navy-900 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 leading-relaxed font-sans min-h-[140px] resize-y"
+                  className="mt-1.5 w-full rounded-xl border border-slate-200 bg-white p-3.5 text-sm text-foreground shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 leading-relaxed font-sans min-h-[140px] resize-y"
                 />
               </div>
 

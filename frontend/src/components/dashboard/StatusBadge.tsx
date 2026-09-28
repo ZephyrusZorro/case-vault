@@ -9,15 +9,15 @@ export type BadgeKind =
 
 const STYLES: Record<BadgeKind, string> = {
   valid:
-    "bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-500/40",
+    "bg-emerald-50 text-emerald-700 ring-emerald-600/20   ",
   under_review:
-    "bg-amber-50 text-amber-700 ring-amber-600/25 dark:bg-amber-950/60 dark:text-amber-300 dark:ring-amber-500/40",
+    "bg-amber-50 text-amber-700 ring-amber-600/25   ",
   high_risk:
-    "bg-rose-50 text-rose-700 ring-rose-600/20 dark:bg-rose-950/60 dark:text-rose-300 dark:ring-rose-500/40",
+    "bg-rose-50 text-rose-700 ring-rose-600/20   ",
   pending:
-    "bg-slate-100 text-slate-600 ring-slate-500/20 dark:bg-slate-800/80 dark:text-slate-300 dark:ring-slate-700/60",
+    "bg-slate-100 text-slate-600 ring-slate-500/20   ",
   processing:
-    "bg-blue-50 text-blue-700 ring-blue-600/20 dark:bg-blue-950/60 dark:text-blue-300 dark:ring-blue-500/40",
+    "bg-blue-50 text-blue-700 ring-blue-600/20   ",
 };
 
 const LABELS: Record<BadgeKind, string> = {

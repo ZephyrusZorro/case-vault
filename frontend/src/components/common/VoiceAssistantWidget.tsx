@@ -24,10 +24,12 @@ import {
   requestMicrophonePermission,
 } from "../../utils/voiceAssistant";
 import type { VoiceBriefResponse, VoiceQueryResponse } from "../../types/api";
+import { useTranslation } from "react-i18next";
 
 export function VoiceAssistantWidget() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -280,23 +282,23 @@ export function VoiceAssistantWidget() {
           role="dialog"
           aria-modal="true"
           aria-label="Voice Guidance Panel"
-          className="pointer-events-auto mb-3 w-[92vw] max-w-md rounded-2xl border-2 border-blue-500/80 bg-white/95 dark:bg-[#0E1526]/95 backdrop-blur-xl shadow-2xl shadow-blue-500/20 p-5 text-slate-900 dark:text-slate-100 transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
+          className="pointer-events-auto mb-3 w-[92vw] max-w-md rounded-2xl border-2 border-foreground bg-white shadow-hard p-5 text-foreground transition-all duration-300 animate-in fade-in slide-in-from-bottom-5"
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+          <div className="flex items-center justify-between border-b-2 border-foreground/10 pb-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-glow-blue">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-violet border-2 border-foreground text-white shadow-hard-active">
                 <Sparkles size={18} />
               </div>
               <div>
-                <h2 className="text-sm font-extrabold text-navy-900 dark:text-white flex items-center gap-1.5">
-                  Voice Assistant
-                  <span className="rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 px-2 py-0.5 text-[10px] font-bold">
-                    Smart AI
+                <h2 className="text-sm font-extrabold text-foreground flex items-center gap-1.5">
+                  {t("voice.title")}
+                  <span className="rounded-full bg-accent-yellow border-2 border-foreground text-foreground px-2 py-0.5 text-[10px] font-bold shadow-hard-active">
+                    {t("voice.badge")}
                   </span>
                 </h2>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  Accessible spoken guidance & conversational Q&A
+                <p className="text-[11px] text-slate-600 font-medium">
+                  {t("voice.subtitle")}
                 </p>
               </div>
             </div>
@@ -305,59 +307,62 @@ export function VoiceAssistantWidget() {
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                className="rounded-lg p-1.5 text-foreground hover:bg-accent-pink hover:text-white transition-colors border-2 border-transparent hover:border-foreground hover:shadow-hard-active"
                 aria-label="Close voice assistant dialog"
               >
-                <X size={18} />
+                <X size={18} strokeWidth={2.5} />
               </button>
             </div>
           </div>
 
           {/* Controls: Speech Cadence & Voice Accent Selector */}
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-100/80 dark:bg-slate-900/60 p-2 text-xs">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-50 border-2 border-foreground/10 p-2 text-xs">
             {/* Speed Toggle */}
             <div className="flex items-center gap-1.5">
-              <Clock size={13} className="text-blue-500" />
-              <div className="inline-flex rounded-lg bg-white dark:bg-slate-800 p-0.5 shadow-sm border border-slate-200/60 dark:border-slate-700/60">
+              <Clock size={13} className="text-foreground" strokeWidth={2.5} />
+              <div className="inline-flex rounded-lg bg-white p-0.5 border-2 border-foreground shadow-hard-active">
                 <button
                   type="button"
                   onClick={() => setSpeedMode("elderly")}
                   className={`rounded-md px-2 py-0.5 text-[11px] font-bold transition-all ${
                     speedMode === "elderly"
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-accent-violet text-white"
+                      : "text-slate-600 hover:text-foreground"
                   }`}
                   title="Calm 0.86x cadence for elderly comprehension"
                 >
-                  Relaxed (0.86x)
+                  {t("voice.speed_relaxed")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setSpeedMode("normal")}
                   className={`rounded-md px-2 py-0.5 text-[11px] font-bold transition-all ${
                     speedMode === "normal"
-                      ? "bg-blue-600 text-white shadow-sm"
-                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      ? "bg-accent-violet text-white"
+                      : "text-slate-600 hover:text-foreground"
                   }`}
                   title="Standard 1.0x rate"
                 >
-                  Standard
+                  {t("voice.speed_normal")}
                 </button>
               </div>
             </div>
 
             {/* Accent Selector */}
             <div className="flex items-center gap-1 text-[11px]">
-              <Globe size={12} className="text-slate-400" />
+              <Globe size={12} className="text-foreground" strokeWidth={2.5} />
               <select
                 value={selectedLang}
                 onChange={(e) => setSelectedLang(e.target.value)}
-                className="rounded-md border border-slate-200/80 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300 focus:outline-none"
+                className="rounded-md border-2 border-foreground bg-white px-1.5 py-0.5 text-[11px] font-bold text-foreground focus:outline-none shadow-hard-active"
                 aria-label="Select voice accent"
               >
                 <option value="en-IN">English (India)</option>
                 <option value="en-US">English (US)</option>
                 <option value="en-GB">English (UK)</option>
+                <option value="hi-IN">Hindi</option>
+                <option value="ar-SA">Arabic</option>
+                <option value="fr-FR">French</option>
               </select>
             </div>
           </div>
@@ -366,25 +371,25 @@ export function VoiceAssistantWidget() {
           {(isSpeaking || spokenSubtitle) && (
             <div
               aria-live="polite"
-              className="mt-3 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/70 dark:bg-blue-950/40 p-3.5"
+              className="mt-3 rounded-xl border-2 border-foreground bg-accent-yellow p-3.5 shadow-hard-active"
             >
-              <div className="flex items-center justify-between text-[11px] font-bold text-blue-700 dark:text-blue-300 mb-1">
+              <div className="flex items-center justify-between text-[11px] font-bold text-foreground mb-1">
                 <span className="flex items-center gap-1.5">
-                  <Volume2 size={14} className={isSpeaking ? "animate-pulse text-blue-600" : ""} />
-                  {isSpeaking ? "Speaking answer aloud..." : "Last Spoken Answer"}
+                  <Volume2 size={14} className={isSpeaking ? "animate-pulse" : ""} strokeWidth={2.5} />
+                  {isSpeaking ? t("voice.speaking") : t("voice.last_spoken")}
                 </span>
                 {isSpeaking && (
                   <button
                     type="button"
                     onClick={handleStopSpeech}
-                    className="flex items-center gap-1 text-rose-600 dark:text-rose-400 hover:underline font-bold text-[11px]"
+                    className="flex items-center gap-1 text-foreground hover:underline font-extrabold text-[11px]"
                   >
-                    <VolumeX size={12} />
-                    Stop
+                    <VolumeX size={12} strokeWidth={2.5} />
+                    {t("voice.stop")}
                   </button>
                 )}
               </div>
-              <p className="text-sm sm:text-base font-semibold text-navy-950 dark:text-blue-50 leading-relaxed">
+              <p className="text-sm sm:text-base font-extrabold text-foreground leading-relaxed">
                 "{spokenSubtitle}"
               </p>
             </div>
@@ -392,21 +397,21 @@ export function VoiceAssistantWidget() {
 
           {/* Live Recognition Transcript / Thinking State */}
           {isThinking && (
-            <div className="mt-3 flex items-center gap-2 rounded-xl border border-blue-200 dark:border-blue-900/60 bg-blue-50/40 dark:bg-blue-950/30 p-3 text-xs text-blue-600 dark:text-blue-400 font-medium">
-              <Loader2 size={16} className="animate-spin text-blue-500" />
-              <span>Analyzing case evidence and finding answer...</span>
+            <div className="mt-3 flex items-center gap-2 rounded-xl border-2 border-foreground bg-accent-mint p-3 text-xs text-foreground font-bold shadow-hard-active">
+              <Loader2 size={16} className="animate-spin text-foreground" strokeWidth={2.5} />
+              <span>{t("voice.analyzing")}</span>
             </div>
           )}
 
           {transcript && !isSpeaking && !isThinking && (
             <div
               aria-live="polite"
-              className="mt-3 rounded-xl border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50/60 dark:bg-emerald-950/40 p-3"
+              className="mt-3 rounded-xl border-2 border-foreground bg-accent-mint p-3 shadow-hard-active"
             >
-              <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 uppercase tracking-wider mb-0.5">
-                {isListening ? "Listening..." : "Recognized Input"}
+              <p className="text-[11px] font-extrabold text-foreground uppercase tracking-wider mb-0.5">
+                {isListening ? t("voice.listening") : t("voice.recognized")}
               </p>
-              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+              <p className="text-sm font-bold text-foreground">
                 {transcript}
               </p>
             </div>
@@ -414,8 +419,8 @@ export function VoiceAssistantWidget() {
 
           {/* Status Feedback */}
           {lastAction && (
-            <div className="mt-2 text-[11px] font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1">
-              <Zap size={11} className="text-amber-500" />
+            <div className="mt-2 text-[11px] font-bold text-slate-500 flex items-center gap-1">
+              <Zap size={11} className="text-accent-pink" strokeWidth={2.5} />
               <span>{lastAction}</span>
             </div>
           )}
@@ -426,22 +431,22 @@ export function VoiceAssistantWidget() {
             <button
               type="button"
               onClick={toggleListening}
-              className={`flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-bold text-sm transition-all shadow-md active:scale-95 ${
+              className={`flex items-center justify-center gap-2 rounded-xl py-3 px-4 font-bold text-sm transition-all border-2 border-foreground active:scale-95 ${
                 isListening
-                  ? "bg-rose-600 text-white animate-pulse shadow-rose-500/30"
-                  : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/25"
+                  ? "bg-accent-pink text-white animate-pulse shadow-hard-active"
+                  : "bg-accent-violet text-white hover:shadow-hard-hover shadow-hard"
               }`}
               aria-label={isListening ? "Stop listening" : "Start speaking voice command"}
             >
               {isListening ? (
                 <>
-                  <MicOff size={18} />
-                  <span>Stop Mic</span>
+                  <MicOff size={18} strokeWidth={2.5} />
+                  <span>{t("voice.stop_mic")}</span>
                 </>
               ) : (
                 <>
-                  <Mic size={18} />
-                  <span>Tap to Speak</span>
+                  <Mic size={18} strokeWidth={2.5} />
+                  <span>{t("voice.tap_speak")}</span>
                 </>
               )}
             </button>
@@ -451,11 +456,11 @@ export function VoiceAssistantWidget() {
               type="button"
               onClick={speakCurrentPageOverview}
               disabled={isSpeaking || loadingBrief || isThinking}
-              className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 py-3 px-4 font-bold text-sm transition-all shadow-sm active:scale-95 disabled:opacity-50"
+              className="flex items-center justify-center gap-2 rounded-xl border-2 border-foreground bg-white hover:bg-accent-yellow text-foreground py-3 px-4 font-bold text-sm transition-all shadow-hard hover:shadow-hard-hover active:scale-95 disabled:opacity-50 disabled:hover:shadow-hard disabled:hover:bg-white"
               aria-label="Read summary aloud"
             >
-              <Volume2 size={18} className="text-blue-500" />
-              <span>{currentCaseId ? "Speak Case" : "Read Page"}</span>
+              <Volume2 size={18} className="text-foreground" strokeWidth={2.5} />
+              <span>{currentCaseId ? t("voice.speak_case") : t("voice.read_page")}</span>
             </button>
           </div>
 
@@ -465,40 +470,40 @@ export function VoiceAssistantWidget() {
               type="text"
               value={typedInput}
               onChange={(e) => setTypedInput(e.target.value)}
-              placeholder="Ask anything (e.g. 'Is this fake?', 'What is the risk score?')"
-              className="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none"
+              placeholder={t("voice.placeholder")}
+              className="flex-1 rounded-xl border-2 border-foreground bg-white px-3 py-2 text-xs font-bold text-foreground placeholder:text-slate-400 focus:outline-none shadow-hard-active"
               aria-label="Type question for voice assistant"
             />
             <button
               type="submit"
               disabled={!typedInput.trim() || isThinking}
-              className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 transition-colors shrink-0"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-accent-pink border-2 border-foreground text-white shadow-hard hover:shadow-hard-hover active:shadow-hard-active disabled:opacity-40 transition-all shrink-0"
               title="Submit question"
             >
-              <Send size={13} />
+              <Send size={14} strokeWidth={2.5} />
             </button>
           </form>
 
           {/* If on Case Page, Show Brief Findings */}
           {currentCaseId && voiceBrief && (
-            <div className="mt-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/50 p-3 text-xs">
+            <div className="mt-3 rounded-xl border-2 border-foreground bg-slate-50 p-3 text-xs shadow-hard-active">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                <span className="font-extrabold text-foreground flex items-center gap-1.5">
                   {voiceBrief.has_warnings ? (
-                    <AlertTriangle size={14} className="text-amber-500" />
+                    <AlertTriangle size={14} className="text-accent-pink" strokeWidth={2.5} />
                   ) : (
-                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    <CheckCircle2 size={14} className="text-accent-mint" strokeWidth={2.5} />
                   )}
-                  Verification Summary ({voiceBrief.recommendation?.replace(/_/g, " ") ?? "Evaluating"})
+                  {t("voice.summary")} ({voiceBrief.recommendation?.replace(/_/g, " ") ?? t("voice.evaluating")})
                 </span>
-                <span className="font-mono font-bold text-slate-500 text-[11px]">
-                  Risk: {voiceBrief.risk_score ?? "—"}/100
+                <span className="font-mono font-extrabold text-slate-500 text-[11px]">
+                  {t("voice.risk")}: {voiceBrief.risk_score ?? "—"}/100
                 </span>
               </div>
-              <ul className="space-y-1 text-slate-600 dark:text-slate-400">
+              <ul className="space-y-1 text-slate-600 font-medium">
                 {voiceBrief.summary_bullets.map((b, idx) => (
                   <li key={idx} className="flex items-start gap-1.5 text-[11px] leading-relaxed">
-                    <span className="text-blue-500 font-bold">•</span>
+                    <span className="text-accent-violet font-bold">•</span>
                     <span>{b}</span>
                   </li>
                 ))}
@@ -507,9 +512,9 @@ export function VoiceAssistantWidget() {
           )}
 
           {/* Quick Voice / Natural Question Chips */}
-          <div className="mt-3 pt-2.5 border-t border-slate-200/80 dark:border-slate-800/80">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-              Ask or tap any question:
+          <div className="mt-3 pt-2.5 border-t-2 border-foreground/10">
+            <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-500 mb-1.5">
+              {t("voice.suggestions_title")}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {[
@@ -525,7 +530,7 @@ export function VoiceAssistantWidget() {
                   key={cmd}
                   type="button"
                   onClick={() => processQuery(cmd)}
-                  className="rounded-lg border border-slate-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+                  className="rounded-lg border-2 border-foreground bg-white px-2 py-0.5 text-[11px] font-bold text-foreground hover:bg-accent-yellow transition-all shadow-hard-active"
                 >
                   "{cmd}"
                 </button>
@@ -548,31 +553,31 @@ export function VoiceAssistantWidget() {
           }
         }}
         aria-label="Toggle Voice Assistant"
-        className={`pointer-events-auto group relative flex h-14 w-14 items-center justify-center rounded-2xl shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-500/40 ${
+        className={`pointer-events-auto group relative flex h-14 w-14 items-center justify-center rounded-2xl border-2 border-foreground shadow-hard transition-all duration-300 hover:scale-105 hover:shadow-hard-hover active:scale-95 active:shadow-hard-active focus:outline-none ${
           isListening
-            ? "bg-rose-600 text-white shadow-rose-500/40 animate-pulse ring-4 ring-rose-400/50"
+            ? "bg-accent-pink text-white animate-pulse"
             : isSpeaking
-              ? "bg-amber-500 text-white shadow-amber-500/40 ring-4 ring-amber-300/50"
-              : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/35"
+              ? "bg-accent-yellow text-foreground"
+              : "bg-accent-violet text-white"
         }`}
         title="Open Voice Assistant (For elderly & hands-free assistance)"
       >
         {/* Soundwave animation ring */}
         {(isListening || isSpeaking) && (
-          <span className="absolute -inset-1 rounded-2xl bg-inherit opacity-40 animate-ping" />
+          <span className="absolute -inset-1 rounded-2xl bg-inherit opacity-40 animate-ping border-2 border-foreground" />
         )}
 
         {isListening ? (
-          <Mic size={24} className="animate-bounce" />
+          <Mic size={24} className="animate-bounce" strokeWidth={2.5} />
         ) : isSpeaking ? (
-          <Volume2 size={24} className="animate-pulse" />
+          <Volume2 size={24} className="animate-pulse" strokeWidth={2.5} />
         ) : (
-          <Mic size={24} className="transition-transform group-hover:scale-110" />
+          <Mic size={24} className="transition-transform group-hover:scale-110" strokeWidth={2.5} />
         )}
 
         {/* Small badge if case brief available */}
         {currentCaseId && !isOpen && (
-          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white dark:ring-slate-900">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent-mint border-2 border-foreground text-[10px] font-extrabold text-foreground shadow-hard-active">
             ✓
           </span>
         )}

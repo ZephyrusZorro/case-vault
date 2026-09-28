@@ -85,10 +85,10 @@ export function DocumentTypeSelector({
         <span
           className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold ${
             isUnknown
-              ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300 ring-1 ring-amber-400/40"
+              ? "bg-amber-100 text-amber-800   ring-1 ring-amber-400/40"
               : isUserVerified
-                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 ring-1 ring-emerald-500/30"
-                : "bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 ring-1 ring-blue-500/30"
+                ? "bg-emerald-50 text-emerald-700   ring-1 ring-emerald-500/30"
+                : "bg-blue-50 text-blue-700   ring-1 ring-blue-500/30"
           }`}
         >
           {isUnknown ? (
@@ -113,7 +113,7 @@ export function DocumentTypeSelector({
           <button
             type="button"
             onClick={() => setIsEditing(true)}
-            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600  hover:underline"
             title="Correct or manually specify document type"
           >
             <Edit2 size={11} />
@@ -128,7 +128,7 @@ export function DocumentTypeSelector({
           <select
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-2.5 py-1 text-xs font-medium text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-lg border border-slate-300  bg-white  px-2.5 py-1 text-xs font-medium text-slate-800  focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {DOCUMENT_TYPE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -158,14 +158,14 @@ export function DocumentTypeSelector({
       )}
 
       {statusMsg && !isEditing && (
-        <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+        <p className="text-[11px] text-emerald-600  font-medium">
           {statusMsg}
         </p>
       )}
 
       {showRerunPrompt && (
-        <div className="flex items-center justify-between gap-3 rounded-lg border border-blue-200 dark:border-blue-900/60 bg-blue-50/70 dark:bg-blue-950/40 p-2.5 text-xs">
-          <span className="text-blue-800 dark:text-blue-300">
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-blue-200  bg-blue-50/70  p-2.5 text-xs">
+          <span className="text-blue-800 ">
             Re-run screening with updated document type?
           </span>
           <button

@@ -12,9 +12,9 @@ const SUSPICION_TONE: Record<
   DocumentForensicsReport["overall_suspicion"],
   string
 > = {
-  low: "bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-950/60 dark:text-emerald-300 dark:ring-emerald-500/40",
-  medium: "bg-amber-50 text-amber-700 ring-amber-600/25 dark:bg-amber-950/60 dark:text-amber-300 dark:ring-amber-500/40",
-  high: "bg-rose-50 text-rose-700 ring-rose-600/20 dark:bg-rose-950/60 dark:text-rose-300 dark:ring-rose-500/40",
+  low: "bg-emerald-50 text-emerald-700 ring-emerald-600/20   ",
+  medium: "bg-amber-50 text-amber-700 ring-amber-600/25   ",
+  high: "bg-rose-50 text-rose-700 ring-rose-600/20   ",
 };
 
 function severityColor(severity: ForensicItem["severity"]): string {
@@ -28,7 +28,7 @@ function AnnotatedPreview({ report }: { report: DocumentForensicsReport }) {
   const [dims, setDims] = useState<{ w: number; h: number } | null>(null);
 
   return (
-    <div className="relative inline-block overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 shadow-sm">
+    <div className="relative inline-block overflow-hidden rounded-xl border border-slate-200  bg-slate-100  shadow-sm">
       <DocImage
         src={`/api/documents/${report.document_id}/file`}
         alt={`Document ${report.file_name}`}
@@ -74,11 +74,11 @@ function AnnotatedPreview({ report }: { report: DocumentForensicsReport }) {
 
 function DocumentCard({ report }: { report: DocumentForensicsReport }) {
   return (
-    <section className="card p-5 space-y-4 border border-slate-200/90 dark:border-slate-800">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800/80 pb-3.5">
+    <section className="card p-5 space-y-4 border border-slate-200/90 ">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100  pb-3.5">
         <div>
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white">{report.file_name}</h4>
-          <p className="text-xs capitalize text-slate-500 dark:text-slate-400 font-medium">
+          <h4 className="text-sm font-bold text-slate-900 ">{report.file_name}</h4>
+          <p className="text-xs capitalize text-slate-500  font-medium">
             {report.document_type?.replace(/_/g, " ") ?? "unclassified"} ·{" "}
             {report.findings.length} visual finding{report.findings.length === 1 ? "" : "s"}
           </p>
@@ -100,9 +100,9 @@ function DocumentCard({ report }: { report: DocumentForensicsReport }) {
 
         <div className="space-y-3">
           {report.findings.length === 0 ? (
-            <div className="flex items-start gap-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 p-4 border border-emerald-200 dark:border-emerald-800">
-              <ShieldCheck size={16} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
-              <p className="text-xs leading-relaxed text-emerald-800 dark:text-emerald-300 font-medium">
+            <div className="flex items-start gap-2.5 rounded-xl bg-emerald-50  p-4 border border-emerald-200 ">
+              <ShieldCheck size={16} className="mt-0.5 shrink-0 text-emerald-600 " aria-hidden="true" />
+              <p className="text-xs leading-relaxed text-emerald-800  font-medium">
                 No significant image tampering, compression anomalies, or splicing indicators detected.
               </p>
             </div>
@@ -113,38 +113,38 @@ function DocumentCard({ report }: { report: DocumentForensicsReport }) {
                   key={i}
                   className={`rounded-xl border-l-4 p-3.5 transition-colors ${
                     f.severity === "high"
-                      ? "border-rose-500 bg-rose-50/70 dark:bg-rose-950/40 text-rose-900 dark:text-rose-100"
+                      ? "border-rose-500 bg-rose-50/70  text-rose-900 "
                       : f.severity === "medium"
-                        ? "border-amber-500 bg-amber-50/70 dark:bg-amber-950/40 text-amber-900 dark:text-amber-100"
-                        : "border-slate-300 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-900/60 text-slate-800 dark:text-slate-200"
+                        ? "border-amber-500 bg-amber-50/70  text-amber-900 "
+                        : "border-slate-300  bg-slate-50/80  text-slate-800 "
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold capitalize text-slate-900 dark:text-white">
+                    <p className="text-xs font-bold capitalize text-slate-900 ">
                       {f.region}
                     </p>
-                    <span className="font-mono text-[10px] text-slate-400 dark:text-slate-500">
+                    <span className="font-mono text-[10px] text-slate-400 ">
                       [{f.bbox.join(", ")}]
                     </span>
                   </div>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-700 dark:text-slate-300 font-medium">
+                  <p className="mt-1 text-xs leading-relaxed text-slate-700  font-medium">
                     {f.explanation}
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                       f.finding_type === "copy_move_anomaly"
-                        ? "bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border border-purple-200 dark:border-purple-800"
+                        ? "bg-purple-100 text-purple-800   border border-purple-200 "
                         : f.finding_type === "metadata_tamper_indicator"
-                          ? "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
+                          ? "bg-rose-100 text-rose-800   border border-rose-200 "
                           : f.finding_type === "noise_variance_anomaly"
-                            ? "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                            ? "bg-indigo-100 text-indigo-800   border border-indigo-200 "
                             : f.finding_type === "compression_anomaly"
-                              ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
-                              : "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                              ? "bg-amber-100 text-amber-800   border border-amber-200 "
+                              : "bg-blue-100 text-blue-800   border border-blue-200 "
                     }`}>
                       {f.finding_type.replace(/_/g, " ")}
                     </span>
-                    <span className="text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400">
+                    <span className="text-[10px] font-mono font-semibold text-slate-500 ">
                       Score: {Math.round(f.score * 100)}/100
                     </span>
                   </div>
@@ -153,8 +153,8 @@ function DocumentCard({ report }: { report: DocumentForensicsReport }) {
             </ul>
           )}
 
-          <div className="flex items-start gap-2.5 rounded-xl border border-blue-100 dark:border-blue-900/60 bg-blue-50/70 dark:bg-blue-950/40 p-3 text-xs leading-relaxed text-blue-900 dark:text-blue-300">
-            <Info size={15} className="mt-0.5 shrink-0 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+          <div className="flex items-start gap-2.5 rounded-xl border border-blue-100  bg-blue-50/70  p-3 text-xs leading-relaxed text-blue-900 ">
+            <Info size={15} className="mt-0.5 shrink-0 text-blue-600 " aria-hidden="true" />
             <p className="text-[11px]">
               Highlighted bounding boxes mark algorithmic anomalies in pixel gradient and noise levels. Verification decisions should combine ELA and cross-document data.
             </p>
@@ -172,19 +172,19 @@ export function ForensicsTab({ caseId }: { caseId: string }) {
 
   if (loading)
     return (
-      <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500 dark:text-slate-400 font-medium">
+      <div className="flex items-center justify-center gap-3 py-16 text-xs text-slate-500  font-medium">
         <Loader2 size={18} className="animate-spin text-blue-500" aria-hidden="true" /> Analyzing image noise and compression gradients…
       </div>
     );
   if (error)
     return (
-      <p role="alert" className="rounded-xl bg-rose-50 dark:bg-rose-950/60 p-4 text-xs font-semibold text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
+      <p role="alert" className="rounded-xl bg-rose-50  p-4 text-xs font-semibold text-rose-700  border border-rose-200 ">
         {error}
       </p>
     );
   if (!data || data.documents.length === 0)
     return (
-      <p className="py-12 text-center text-xs text-slate-400 dark:text-slate-500">
+      <p className="py-12 text-center text-xs text-slate-400 ">
         No documents available for forensic analysis.
       </p>
     );
@@ -194,7 +194,7 @@ export function ForensicsTab({ caseId }: { caseId: string }) {
       {data.documents.map((r) => (
         <DocumentCard key={r.document_id} report={r} />
       ))}
-      <p className="text-center text-[11px] text-slate-400 dark:text-slate-500 font-medium">{data.disclaimer}</p>
+      <p className="text-center text-[11px] text-slate-400  font-medium">{data.disclaimer}</p>
     </div>
   );
 }

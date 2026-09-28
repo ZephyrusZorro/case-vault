@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
@@ -14,10 +14,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem("idshield_theme") as Theme | null;
     if (saved === "dark" || saved === "light") return saved;
-    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      return "dark";
-    }
-    return "dark"; // Default to sleek dark forensic theme
+    return "light"; // Default to playful light theme
   });
 
   useEffect(() => {

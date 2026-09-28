@@ -203,17 +203,17 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 backdrop-blur-sm bg-slate-950/60 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-16 sm:pt-24 backdrop-blur-sm bg-foreground/40 animate-fade-in"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1120] shadow-2xl animate-rise-in text-slate-900 dark:text-white"
+        className="w-full max-w-xl overflow-hidden rounded-2xl border-2 border-foreground bg-white shadow-hard animate-rise-in text-foreground"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
         {/* Search input header */}
-        <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800/80 px-4 py-3.5">
-          <Search size={18} className="text-slate-400 dark:text-slate-500 shrink-0" />
+        <div className="flex items-center gap-3 border-b-2 border-foreground/10 px-4 py-3.5">
+          <Search size={18} className="text-foreground shrink-0" strokeWidth={2.5} />
           <input
             ref={inputRef}
             type="text"
@@ -223,20 +223,20 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
               setQuery(e.target.value);
               setSelectedIndex(0);
             }}
-            className="flex-1 bg-transparent text-sm font-semibold outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            className="flex-1 bg-transparent text-sm font-extrabold outline-none placeholder:text-slate-400 text-foreground"
           />
           {searching ? (
-            <Loader2 size={16} className="animate-spin text-blue-500 shrink-0" />
+            <Loader2 size={16} className="animate-spin text-accent-violet shrink-0" strokeWidth={2.5} />
           ) : query ? (
             <button
               type="button"
               onClick={() => setQuery("")}
-              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="text-slate-400 hover:text-foreground"
             >
-              <X size={16} />
+              <X size={16} strokeWidth={2.5} />
             </button>
           ) : (
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-mono text-slate-500 dark:text-slate-400">
+            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border-2 border-foreground bg-white px-1.5 py-0.5 text-[10px] font-mono font-extrabold text-foreground shadow-hard-active">
               ESC
             </kbd>
           )}
@@ -247,7 +247,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           {/* Direct Matching Cases */}
           {searchResults.length > 0 && (
             <div>
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
                 Matching Cases
               </div>
               {searchResults.map((item, idx) => {
@@ -261,24 +261,24 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                       onClose();
                     }}
                     onMouseEnter={() => setSelectedIndex(idx)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-all ${
+                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-all border-2 ${
                       isSelected
-                        ? "bg-blue-600 text-white shadow-glow-blue"
-                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                        ? "bg-accent-violet text-white border-foreground shadow-hard-active"
+                        : "text-foreground border-transparent hover:bg-accent-yellow hover:border-foreground hover:shadow-hard"
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <FileCheck2 size={16} className={isSelected ? "text-white" : "text-blue-500"} />
+                      <FileCheck2 size={16} className={isSelected ? "text-white" : "text-foreground"} strokeWidth={2.5} />
                       <div className="truncate">
-                        <p className="font-bold text-xs">
+                        <p className="font-extrabold text-xs">
                           #{item.case_number} · {item.person_name || item.case_name}
                         </p>
-                        <p className={`text-[11px] truncate ${isSelected ? "text-blue-100" : "text-slate-400 dark:text-slate-500"}`}>
+                        <p className={`text-[11px] truncate ${isSelected ? "text-white/90" : "text-slate-500 font-bold"}`}>
                           {item.case_name} · {item.document_count} documents
                         </p>
                       </div>
                     </div>
-                    <ArrowRight size={14} className={isSelected ? "text-white" : "text-slate-400"} />
+                    <ArrowRight size={14} className={isSelected ? "text-white" : "text-foreground"} strokeWidth={2.5} />
                   </button>
                 );
               })}
@@ -288,7 +288,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           {/* Quick Actions & Navigation */}
           {filteredActions.length > 0 && (
             <div>
-              <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-slate-500">
                 Quick Navigation &amp; Tools
               </div>
               {filteredActions.map((action, aIdx) => {
@@ -302,24 +302,24 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                     onClick={action.action}
                     onMouseEnter={() => setSelectedIndex(globalIdx)}
                     disabled={loadingDemo && action.id === "demo-case"}
-                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-all ${
+                    className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left transition-all border-2 ${
                       isSelected
-                        ? "bg-blue-600 text-white shadow-glow-blue"
-                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                        ? "bg-accent-violet text-white border-foreground shadow-hard-active"
+                        : "text-foreground border-transparent hover:bg-accent-yellow hover:border-foreground hover:shadow-hard"
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${isSelected ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"}`}>
-                        <Icon size={15} />
+                      <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${isSelected ? "bg-white/20 text-white border-2 border-white/40" : "bg-white border-2 border-foreground text-foreground shadow-hard-active"}`}>
+                        <Icon size={15} strokeWidth={2.5} />
                       </div>
                       <div className="truncate">
-                        <p className="font-bold text-xs">{action.title}</p>
-                        <p className={`text-[11px] truncate ${isSelected ? "text-blue-100" : "text-slate-400 dark:text-slate-500"}`}>
+                        <p className="font-extrabold text-xs">{action.title}</p>
+                        <p className={`text-[11px] truncate ${isSelected ? "text-white/90" : "text-slate-500 font-bold"}`}>
                           {action.subtitle}
                         </p>
                       </div>
                     </div>
-                    <ArrowRight size={14} className={isSelected ? "text-white" : "text-slate-400"} />
+                    <ArrowRight size={14} className={isSelected ? "text-white" : "text-foreground"} strokeWidth={2.5} />
                   </button>
                 );
               })}
@@ -327,22 +327,22 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           )}
 
           {totalItems === 0 && (
-            <div className="p-8 text-center text-xs text-slate-400 dark:text-slate-500">
+            <div className="p-8 text-center text-xs text-slate-400 ">
               No matching commands or cases found.
             </div>
           )}
         </div>
 
         {/* Footer shortcuts */}
-        <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-900/60 px-4 py-2 text-[11px] text-slate-400 dark:text-slate-500">
+        <div className="flex items-center justify-between border-t-2 border-foreground/10 bg-slate-50 px-4 py-2 text-[11px] font-bold text-slate-500">
           <div className="flex items-center gap-2">
             <span>Navigate:</span>
-            <kbd className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1 font-mono">↑</kbd>
-            <kbd className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1 font-mono">↓</kbd>
+            <kbd className="rounded border-2 border-foreground bg-white px-1.5 font-mono font-extrabold text-foreground shadow-hard-active">↑</kbd>
+            <kbd className="rounded border-2 border-foreground bg-white px-1.5 font-mono font-extrabold text-foreground shadow-hard-active">↓</kbd>
           </div>
           <div className="flex items-center gap-2">
             <span>Select:</span>
-            <kbd className="rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 font-mono">ENTER</kbd>
+            <kbd className="rounded border-2 border-foreground bg-white px-1.5 font-mono font-extrabold text-foreground shadow-hard-active">ENTER</kbd>
           </div>
         </div>
       </div>
