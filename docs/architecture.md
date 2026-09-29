@@ -1,5 +1,7 @@
 # Architecture
 
+> Legacy ID-SHIELD identity prototype reference. The running CaseVault architecture is documented in [casevault-architecture.md](casevault-architecture.md).
+
 ## System overview
 
 ```mermaid

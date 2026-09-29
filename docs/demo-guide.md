@@ -1,5 +1,7 @@
 # Demo Guide
 
+> Legacy ID-SHIELD identity prototype reference. In CaseVault, sign in as an administrator and use **Load sample cases** on the empty dashboard for fictional legal case files.
+
 Total time: ~3 minutes. Everything runs locally; all data is synthetic.
 
 ## Preparation (once)

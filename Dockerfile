@@ -1,41 +1,25 @@
-﻿# ID-SHIELD — production container (UI + API in one process)
-
-# --- Stage 1: Build Frontend ---
+# CaseVault: one origin for the React application and FastAPI.
 FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci --prefer-offline --no-audit || npm install
-COPY frontend/ ./
+RUN npm ci --no-audit
+COPY frontend/index.html frontend/vite.config.ts frontend/tsconfig.json ./
+COPY frontend/src ./src
+COPY frontend/public ./public
 RUN npm run build
 
-# --- Stage 2: Runtime Backend & Unified Server ---
-FROM python:3.11-slim
-
-# Tesseract OCR for the pipeline; runtime libs for OpenCV headless
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        tesseract-ocr \
-        libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
-
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends tesseract-ocr && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
 COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-
 COPY backend ./backend
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-
-# Ensure runtime directories exist and have open permissions for non-root containers
-RUN mkdir -p /app/data /app/backend/data /app/data/uploads /app/backend/data/uploads && chmod -R 777 /app
-
-ENV DATABASE_URL=sqlite:////app/data/idshield.db
+RUN useradd --system --uid 10001 --home-dir /app/data casevault && mkdir -p /app/data && chown -R casevault:casevault /app/data
+ENV DATABASE_URL=sqlite:////app/data/casevault.db
 ENV UPLOAD_DIR=/app/data/uploads
 ENV CORS_ORIGINS=""
-ENV LOG_LEVEL=INFO
-
-EXPOSE 7860 8000
+USER casevault
 WORKDIR /app/backend
-
-# Runs on injected $PORT or defaults to 7860 (standard for Hugging Face / cloud containers)
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-7860}"]
+EXPOSE 8000
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

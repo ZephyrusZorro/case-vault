@@ -1,50 +1,25 @@
-ID-SHIELD — OFFLINE PACKAGE
-Explainable Identity & Document Forensics Platform
-====================================================
+CASEVAULT — OFFLINE WINDOWS PACKAGE
+Secure legal and investigation document workspace
+=================================================
 
-Everything in this package runs 100% on your PC. No internet connection is
-required once setup is complete. All documents you screen stay on your device.
+The package serves the React UI and FastAPI backend on one local port.
+Uploaded evidence remains on this PC in an encrypted vault. No external API
+or network is required after the software dependencies are installed.
 
-WHAT YOU NEED ON THE TARGET PC
-------------------------------
-1. Python 3.11 or newer          https://www.python.org/downloads/
-   (tick "Add python.exe to PATH" during install)
-2. Tesseract OCR 5               winget install UB-Mannheim.TesseractOCR
-   or download the UB-Mannheim installer; for air-gapped PCs place the
-   installer .exe inside this folder and run it manually.
-3. (Only if frontend/dist was NOT included) Node.js — not needed when
-   frontend\dist exists, which it does in this package.
+First-time setup:
+  powershell -ExecutionPolicy Bypass -File scripts\setup_offline.ps1
 
-FIRST-TIME SETUP (internet needed unless wheels\ is included)
--------------------------------------------------------------
-Right-click Start -> Windows PowerShell, then:
+If a wheels\ directory is included:
+  powershell -ExecutionPolicy Bypass -File scripts\setup_offline.ps1 -UseWheels
 
-    cd path\to\this\folder
-    powershell -ExecutionPolicy Bypass -File scripts\setup_offline.ps1
+Start each day:
+  Double-click start_casevault.bat
+  Open http://localhost:8000
 
-If a wheels\ folder is included (fully offline install):
+The first screen requires an administrator setup token. Run this from the
+package root to display the generated token:
+  .venv\Scripts\python.exe -c "from pathlib import Path; print(Path('backend/data/casevault.setup-token').read_bytes().hex())"
 
-    powershell -ExecutionPolicy Bypass -File scripts\setup_offline.ps1 -UseWheels
-
-START THE APP (everyday use)
-----------------------------
-Double-click:   start_idshield.bat
-The app opens at http://localhost:8000 and works with Wi-Fi turned off.
-
-QUICK TOUR
-----------
-* Screen Documents -> "Load Demo Case" -> watch the pipeline -> explore the
-  evidence tabs (Documents / Validation / Comparison / Forensics / Report).
-* Seed the full demo dataset:
-      cd backend
-      ..\.venv\Scripts\python -m demo.seed_cases
-
-RESET ALL DATA
---------------
-Delete the  backend\data\  folder.
-
-NOTES
------
-* Everything is synthetic demo data; no real identity documents are included.
-* This software only ASSISTS verification - final decisions belong to
-  authorized human personnel.
+Back up backend\data\ together: the SQLite database, vault files, and key
+are all required to restore stored evidence. Tesseract is optional for OCR
+of scanned images. See README.md for supported workflows and limitations.

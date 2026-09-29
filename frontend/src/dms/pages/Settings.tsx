@@ -1,0 +1,22 @@
+import { useState, type FormEvent } from "react";
+import { Activity, Fingerprint, KeyRound, LockKeyhole, Moon, ShieldCheck, Sun } from "lucide-react";
+import { post, setToken } from "../api";
+import { useWorkspace } from "../context";
+import { PageHeading, label } from "../ui";
+
+export default function SettingsPage() {
+  const { user, theme, toggleTheme, notify } = useWorkspace();
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  async function changePassword(event: FormEvent) {
+    event.preventDefault(); setBusy(true);
+    try { const result = await post<{ token: string }>("/auth/change-password", { current_password: currentPassword, new_password: newPassword }); setToken(result.token); setCurrentPassword(""); setNewPassword(""); notify("Password updated. Other sessions have been signed out."); }
+    catch (error) { notify(error instanceof Error ? error.message : "Could not change password.", true); }
+    finally { setBusy(false); }
+  }
+  return <><PageHeading eyebrow="WORKSPACE PREFERENCES" title="Settings" description="Your display preferences and the protection mechanisms active in this installation." />
+    <div className="settings-grid"><section className="panel panel-pad"><div className="eyebrow">APPEARANCE</div><h2>Theme</h2><p className="muted">Choose a comfortable display for long review sessions.</p><div className="theme-choices"><button className={`theme-choice ${theme === "light" ? "theme-selected" : ""}`} onClick={theme === "dark" ? toggleTheme : undefined}><Sun size={19} /><span>Light</span></button><button className={`theme-choice ${theme === "dark" ? "theme-selected" : ""}`} onClick={theme === "light" ? toggleTheme : undefined}><Moon size={19} /><span>Dark</span></button></div></section><section className="panel panel-pad"><div className="eyebrow">YOUR ACCOUNT</div><h2>Account details</h2><div className="settings-field"><span>Name</span><strong>{user.name}</strong></div><div className="settings-field"><span>Email</span><strong>{user.email}</strong></div><div className="settings-field"><span>Role</span><strong>{label(user.role)}</strong></div></section></div>
+    <section className="panel panel-pad password-panel"><div className="eyebrow">ACCOUNT SECURITY</div><h2>Change password</h2><p className="muted">Changing it ends your other active sessions.</p><form className="form-stack" onSubmit={changePassword}><div className="form-grid"><label>Current password<input type="password" value={currentPassword} onChange={event => setCurrentPassword(event.target.value)} required autoComplete="current-password" /></label><label>New password<input type="password" value={newPassword} onChange={event => setNewPassword(event.target.value)} minLength={12} maxLength={128} required autoComplete="new-password" placeholder="At least 12 characters" /></label></div><button className="button button-secondary" disabled={busy}>{busy ? "Updating…" : "Update password"}</button></form></section>
+    <section className="panel panel-pad security-section"><div className="eyebrow">SECURITY MODEL</div><h2>How records are protected</h2><div className="security-grid"><div><span className="security-icon"><LockKeyhole size={20} /></span><strong>Encrypted at rest</strong><p>Evidence bytes and extracted text are protected with AES-256-GCM before storage. Back up the installation key securely.</p></div><div><span className="security-icon"><Fingerprint size={20} /></span><strong>Immutable versions</strong><p>Every upload becomes a separate version with a SHA-256 digest. Retrieval checks decryption and hash integrity.</p></div><div><span className="security-icon"><Activity size={20} /></span><strong>Linked audit events</strong><p>Case actions form a keyed hash chain. Administrators and auditors can verify it from the audit trail.</p></div><div><span className="security-icon"><KeyRound size={20} /></span><strong>Scoped access</strong><p>Case membership controls who can see and edit files. Sessions expire after 12 hours.</p></div></div></section><div className="info-panel"><ShieldCheck size={21} /><div><strong>Legal validity still needs institutional controls</strong><p>This application records provenance and integrity. Qualified electronic signatures, external chain anchoring, disaster recovery, and deployment specific compliance review must be added before production use.</p></div></div></>;
+}

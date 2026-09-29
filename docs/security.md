@@ -1,5 +1,7 @@
 # Security & Privacy Notes
 
+> Legacy ID-SHIELD identity prototype reference. The current CaseVault security model is in [casevault-security.md](casevault-security.md).
+
 Prototype-level controls appropriate for a hackathon build; listed honestly.
 
 ## Input handling (uploads are untrusted)

@@ -1,4 +1,4 @@
-# ID-SHIELD first-time setup (offline-friendly).
+# CaseVault first-time setup (offline-friendly).
 #
 # Run from the project root:
 #   powershell -ExecutionPolicy Bypass -File scripts\setup_offline.ps1
@@ -15,7 +15,7 @@ param(
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 
-Write-Host "=== ID-SHIELD setup ===" -ForegroundColor Cyan
+Write-Host "=== CaseVault setup ===" -ForegroundColor Cyan
 
 # ---- 1. Python environment -------------------------------------------------
 $Py = Join-Path $Root ".venv\Scripts\python.exe"
@@ -42,16 +42,14 @@ if ($LASTEXITCODE -ne 0) { throw "pip install failed." }
 $Dist = Join-Path $Root "frontend\dist"
 if ($SkipFrontendBuild -and (Test-Path $Dist)) {
     Write-Host "[3/4] Skipping frontend build (prebuilt dist found)."
-} elseif (Test-Path $Dist) {
-    Write-Host "[3/4] Frontend build already present (frontend\\dist)."
 } else {
     Write-Host "[3/4] Building frontend (requires Node.js once)..."
     $Npm = Get-Command npm -ErrorAction SilentlyContinue
     if (-not $Npm) { throw "frontend/dist missing and npm not found. Install Node.js or copy a prebuilt frontend/dist into this package." }
     Push-Location (Join-Path $Root "frontend")
     try {
-        & npm install --no-fund --no-audit
-        if ($LASTEXITCODE -ne 0) { throw "npm install failed." }
+        & npm ci --no-fund --no-audit
+        if ($LASTEXITCODE -ne 0) { throw "npm ci failed." }
         & npm run build
         if ($LASTEXITCODE -ne 0) { throw "npm run build failed." }
     } finally { Pop-Location }
@@ -77,6 +75,6 @@ if ($Tess) {
 }
 
 Write-Host ""
-Write-Host "Setup complete. Start ID-SHIELD with:" -ForegroundColor Green
-Write-Host "    double-click  start_idshield.bat"
+Write-Host "Setup complete. Start CaseVault with:" -ForegroundColor Green
+Write-Host "    double-click  start_casevault.bat"
 Write-Host "or: $Py -m uvicorn app.main:app --port 8000  (from backend\\)"

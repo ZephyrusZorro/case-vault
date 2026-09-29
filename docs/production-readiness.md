@@ -1,5 +1,7 @@
 # ID-SHIELD — Production Readiness Report
 
+> Legacy ID-SHIELD identity prototype report. See the current CaseVault [security and production scope](casevault-security.md).
+
 **Date:** 2026-08-26 · **Phase:** Demo (SIH26188) · **Verified build:** post-enhancement
 
 ---

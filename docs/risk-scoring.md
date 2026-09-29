@@ -1,5 +1,7 @@
 # Risk Scoring
 
+> Legacy ID-SHIELD identity prototype reference. Risk scoring is not part of the running CaseVault DMS.
+
 The score answers one question: **why should a human look at this case?** It is
 policy-driven, fully configurable (`backend/app/core/risk_weights.json`) and every
 applied point is written to the `risk_factors` table — the UI ledger shows the

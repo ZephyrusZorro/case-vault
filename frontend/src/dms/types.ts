@@ -1,0 +1,8 @@
+export type User = { id: string; name: string; email: string; role: "admin" | "investigator" | "legal" | "auditor"; active: boolean };
+export type Version = { id: string; number: number; filename: string; mime_type: string; byte_size: number; sha256: string; extraction_status: string; created_at: string; uploaded_by: string };
+export type Document = { id: string; case_id: string; case_reference: string; title: string; kind: string; classification: string; created_at: string; created_by: string; latest: Version | null; versions: Version[] };
+export type Note = { id: string; body: string; created_at: string; author: User };
+export type Review = { id: string; status: string; note: string; assigned_to: string; assigned_name: string; due_at: string | null; created_at: string; completed_at: string | null };
+export type CaseFile = { id: string; reference: string; title: string; description: string; category: string; classification: string; status: string; legal_hold: boolean; retention_until: string | null; lead_user_id: string; created_at: string; updated_at: string; document_count: number; can_edit: boolean; can_reopen: boolean; documents?: Document[]; members?: { user: User; access: string }[]; notes?: Note[]; reviews?: Review[] };
+export type AuditEvent = { id: number; case_id: string | null; action: string; target_id: string | null; details: Record<string, unknown>; actor_name: string; created_at: string; event_hash: string };
+export type Summary = { total_cases: number; active_cases: number; documents: number; pending_reviews: number; legal_holds: number; recent_cases: CaseFile[]; recent_activity: AuditEvent[] };

@@ -1,0 +1,15 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, FolderClosed, Plus, Search, SlidersHorizontal } from "lucide-react";
+import { get } from "../api";
+import { useWorkspace } from "../context";
+import type { CaseFile } from "../types";
+import { Badge, Empty, fmtDate, Loading, PageHeading, label } from "../ui";
+
+export default function CasesPage() {
+  const { user, refreshKey, notify, openNewCase } = useWorkspace();
+  const [cases, setCases] = useState<CaseFile[] | null>(null);
+  const [search, setSearch] = useState(""); const [status, setStatus] = useState("all");
+  useEffect(() => { const timer = window.setTimeout(() => { get<CaseFile[]>(`/cases?search=${encodeURIComponent(search)}&status=${status}`).then(setCases).catch(error => notify(error.message, true)); }, 180); return () => window.clearTimeout(timer); }, [search, status, refreshKey]);
+  return <><PageHeading eyebrow="CASE MANAGEMENT" title="Case files" description="Organize investigations, legal matters, and evidence in one secure place." action={user.role !== "auditor" && <button className="button button-primary" onClick={openNewCase}><Plus size={17} /> New case file</button>} /><div className="panel"><div className="list-toolbar"><div className="search-field"><Search size={18} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search by reference, title, or description" aria-label="Search cases" /></div><div className="select-wrap"><SlidersHorizontal size={16} /><select value={status} onChange={event => setStatus(event.target.value)} aria-label="Filter cases by status"><option value="all">All statuses</option><option value="active">Active</option><option value="under_review">Under review</option><option value="closed">Closed</option><option value="archived">Archived</option></select></div></div>{!cases ? <Loading /> : cases.length ? <div className="table-scroll"><table className="data-table"><thead><tr><th>Case file</th><th>Category</th><th>Classification</th><th>Status</th><th>Documents</th><th>Updated</th><th /></tr></thead><tbody>{cases.map(item => <tr key={item.id}><td><Link to={`/cases/${item.id}`} className="table-main"><span className="table-icon"><FolderClosed size={18} /></span><span><strong>{item.title}</strong><small>{item.reference}</small></span></Link></td><td>{label(item.category)}</td><td><Badge value={item.classification} /></td><td><Badge value={item.status} /></td><td>{item.document_count}</td><td>{fmtDate(item.updated_at)}</td><td><Link className="table-arrow" to={`/cases/${item.id}`} aria-label={`Open ${item.title}`}><ArrowRight size={17} /></Link></td></tr>)}</tbody></table></div> : <Empty icon="search" title={search || status !== "all" ? "No matching cases" : "No case files yet"} description={search || status !== "all" ? "Try a different search or status filter." : "Create your first case file to begin."} action={!search && status === "all" && user.role !== "auditor" && <button className="button button-secondary" onClick={openNewCase}><Plus size={16} /> Create case</button>} />}</div></>;
+}

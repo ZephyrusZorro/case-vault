@@ -1,208 +1,97 @@
-# ID-SHIELD
+# CaseVault
 
-**Explainable Identity & Document Forensics Platform**
-Smart India Hackathon 2026 · SIH26188 · Team HackHive
+**Secure digital document management for legal and investigation case files**
+Smart India Hackathon problem statement **26190** · Ministry of Home Affairs / NCRB Women Safety Division
 
-> **Smart Verification. Stronger Security.**
-> One document can look legitimate. An identity evidence set may still be inconsistent.
+CaseVault is a working, local-first case document system. Its running API is the `app.dms` domain in this repository; the earlier ID-SHIELD identity-forensics code remains in the tree for reference but is not registered in the application.
 
----
+> The supplied statement describes a legal and investigation DMS throughout. Its final “police assets throughout their lifecycle” line conflicts with the title and description. This implementation follows the DMS scope.
 
-## Problem
+## What works
 
-Manual identity verification is slow and error-prone — and the hardest fraud is rarely a single obviously-fake document. It is a **set of individually plausible documents that disagree with each other**: different dates of birth, altered name spellings, contradictory addresses, edited photo regions, reused scans.
-
-Most tools stop at OCR or a fake/real classifier. That answers *"what does the document say?"* — not *"does this evidence make sense together?"*
-
-## Solution: Evidence Fusion
-
-ID-SHIELD is an **identity forensics assistant**, not a verdict machine.
-
-```
-Upload → Extract → Inspect → Compare → Connect → Score → Explain → Human Verify
-```
-
-For every submitted document set it runs:
-
-| Stage | What happens |
+| Capability | Implementation |
 |---|---|
-| Preprocessing | Resize cap, skew estimation, deskew — originals are never modified |
-| OCR | Tesseract (multi-pass) with real per-word confidences; EasyOCR fallback |
-| Classification | Keyword-signature templates (passport, national ID, PAN-like, licence, visa, address proof, certificate) |
-| Field extraction | Label-driven extraction with normalization (ISO dates, folded names) |
-| QR cross-check | Decodes QR payloads and compares against printed fields |
-| Visual forensics | Chromatic-noise uniformity + conservative ELA → localized suspicion regions with bounding boxes |
-| Duplicate / reuse scan | Exact SHA-256 reuse across all cases |
-| Validation | Format checks, date logic, expiry, mandatory fields, **ICAO TD3 MRZ checksums** |
-| Cross-document consistency | Field-appropriate comparators across documents (name initials-aware, noise-tolerant addresses, type-scoped doc numbers) |
-| Risk scoring | Configurable weighted fusion → 0-100 score with a fully cited ± ledger |
+| Case files | Unique case references, categories, classifications, status, lead, retention date, legal hold |
+| Controlled access | Administrator, investigator, legal, auditor roles; explicit viewer/editor case membership; every case and evidence route checks access |
+| Authentication | One-time token protected setup, PBKDF2 password hashes, 12-hour bearer sessions, lockout after failed attempts, password rotation and session revocation |
+| Evidence | PDF, DOCX, TXT, PNG, JPEG upload with signature/size checks; AES-256-GCM encryption before disk storage |
+| Versioning | New uploads create immutable versions; originals remain available; SHA-256 and authenticated decryption verified before retrieval |
+| Search | Case metadata and document titles/filenames; extracted text indexed by keyed search tokens, while extracted text itself is encrypted |
+| Extraction | Text from PDF/DOCX/TXT; image OCR when Tesseract is installed. An unavailable extraction is surfaced honestly |
+| Audit | Actor, case, action, target, time and HMAC-linked event hashes; chain verification, case activity, CSV export |
+| Collaboration | Case notes, explicit access grants, assigned human reviews with recorded decisions |
+| Demo | One-click synthetic cases with actual encrypted PDF files; every sample is fictional |
+| UI | Responsive layout, light and dark themes, subtle transitions, keyboard focus states and reduced-motion support |
 
-Every point of the score is traceable. High-risk cases are always routed to **human verification** — the system never claims legal authenticity or proven fraud.
+The API never claims that a hash is a legal digital signature. Blockchain anchoring, qualified signatures, external government integrations, malware scanning and jurisdiction-specific compliance certification are **not** implemented. See [security and production scope](docs/casevault-security.md).
 
----
+## Run locally
 
-## Features
-
-- Multi-document case workflow with drag & drop upload, previews, live pipeline status
-- Real OCR (Tesseract) with confidence metrics; graceful `unavailable` states when engines are missing
-- MRZ parsing with ICAO 7-3-5 checksums and printed-field cross-checks
-- QR payload ↔ printed text comparison
-- Transparent visual tampering indicators with annotated region overlays
-- Cross-document mismatch matrix with highlighted differences and cited explanations
-- Explainable risk score (`Why this score` ledger on every case)
-- Final verification report with print / save-as-PDF
-- Screening history with search, outcome filters and risk sorting
-- Dashboard derived entirely from stored data (no hardcoded numbers)
-- One-click synthetic demo case + seedable demo dataset
-- Responsive layout (desktop / tablet / phone), print stylesheet, accesAsibility passes
-
-## Run anywhere: Offline PC + Online deployment
-
-**Offline (your PC, no internet):** everything — OCR, forensics, database,
-UI — runs locally. Double-click **`start_idshield.bat`** after one-time setup:
+Prerequisites: Python 3.11+, Node 20+, npm. Tesseract is optional for image OCR.
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\setup_offline.ps1
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+cd frontend
+npm ci
+npm run build
+cd ..\backend
+..\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Build a shareable installer zip for any Windows PC (optionally bundling all
-Python dependencies for fully air-gapped install):
+Open [http://localhost:8000](http://localhost:8000). The FastAPI server serves the built React app and API on one origin. For development hot reload, run `npm run dev` in `frontend` alongside the backend; Vite proxies `/api` to port 8000.
+
+### First administrator
+
+The first page asks for a setup token. By default, CaseVault creates random token bytes in `backend/data/casevault.setup-token`. From the repository root, display the hex value:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\make_offline_package.ps1 -IncludeWheels
+.\.venv\Scripts\python.exe -c "from pathlib import Path; print(Path('backend/data/casevault.setup-token').read_bytes().hex())"
 ```
 
-**Online (deploy to the internet):** a production `Dockerfile` + compose file
-ship with the repo; the container serves UI + API on one port.
+Alternatively set `DMS_SETUP_TOKEN` in the environment before starting the server. Create your administrator account, then use **Load sample cases** on the empty dashboard if you want fictional data for a demo. Change any shared demonstration password before exposing an installation to others.
+
+### Docker
 
 ```bash
-docker compose up --build      # local container test
+docker compose up --build
 ```
 
-Step-by-step guides for Render / Fly.io / HF Spaces / VPS:
-[docs/deployment.md](docs/deployment.md).
+Open [http://localhost:8000](http://localhost:8000). Compose persists the database, vault files and generated encryption key in the `casevault-data` volume. If `DMS_SETUP_TOKEN` is not configured, retrieve the generated token with:
 
-**Which is better?** They serve different purposes and you can have both from
-this single codebase: the offline build is ideal for demos on unreliable
-venue Wi-Fi and keeps documents fully private on your device; the online
-deployment gives a shareable link reviewers can open anywhere. Neither is a
-fork — deploy the same commit you run offline.
+```bash
+docker compose exec app python -c "from pathlib import Path; print(Path('/app/data/casevault.setup-token').read_bytes().hex())"
+```
+
+Back up the **database, vault directory and encryption key together**. Losing the key makes stored evidence unreadable. Set `DMS_MASTER_KEY` to a securely managed 64-character hex value for a managed deployment. The startup key fingerprint check stops the app if a different key is supplied for an existing database.
 
 ## Architecture
 
-See [docs/architecture.md](docs/architecture.md) for diagrams and module map.
-
 ```mermaid
 flowchart LR
-    UI[React SPA] --> API[FastAPI]
-    API --> PIPE[Pipeline orchestrator]
-    PIPE --> PRE[Preprocess] --> OCR[OCR] --> CLS[Classify] --> FLD[Fields]
-    FLD --> QR[QR check] --> FOR[Forensics] --> DUP[Reuse scan] --> VAL[Validate+MRZ] --> CON[Consistency] --> RISK[Risk engine]
-    RISK --> DB[(SQLite / PostgreSQL)]
-    API --> REP[Report]
+  UI[React + TypeScript] --> API[FastAPI]
+  API --> AUTH[Session & case access]
+  API --> CASE[Cases, notes, reviews]
+  API --> EVIDENCE[Evidence service]
+  EVIDENCE --> VAULT[(AES-GCM vault)]
+  EVIDENCE --> SEARCH[Keyed search terms]
+  API --> AUDIT[HMAC audit chain]
+  CASE --> DB[(SQLite / PostgreSQL)]
+  SEARCH --> DB
+  AUDIT --> DB
 ```
 
-## Technology Stack
+The running backend is split into `backend/app/dms/{models,security,access,evidence,audit,routes,demo,installation}.py`. The frontend is under `frontend/src/dms/`. SQLite is the local default; SQLAlchemy models and the included `psycopg` driver support PostgreSQL via `DATABASE_URL=postgresql+psycopg://...`. For production, use migrations, managed secrets, encrypted database backups, TLS, monitoring and a persistent store.
 
-| Layer | Choice |
-|---|---|
-| Frontend | React 18, Vite 5, TypeScript, Tailwind CSS, Recharts, lucide-react |
-| Backend | Python 3.11+, FastAPI, Pydantic v2, SQLAlchemy 2 |
-| Database | SQLite (dev default), PostgreSQL-compatible schema via `DATABASE_URL` |
-| OCR | pytesseract (Tesseract 5), EasyOCR fallback |
-| Vision | OpenCV (headless), Pillow, numpy, imagehash |
-| QR/MRZ | OpenCV QRCodeDetector; own ICAO TD3 parser |
+Detailed notes: [architecture](docs/casevault-architecture.md) · [API](docs/casevault-api.md) · [security](docs/casevault-security.md).
 
-## Setup
-
-Prerequisites: Python 3.11+, Node 18+, [Tesseract](https://github.com/UB-Mannheim/tesseract/wiki) (Windows installer also works via `winget install UB-Mannheim.TesseractOCR`).
-
-```bash
-# 1. Backend
-python -m venv .venv
-.venv\Scripts\pip install -r backend\requirements.txt      # Windows
-# .venv/bin/pip install -r backend/requirements.txt        # Linux/macOS
-
-# 2. Frontend
-cd frontend && npm install && cd ..
-
-# 3. Configure (optional — sane defaults work out of the box)
-copy .env.example .env
-```
-
-### Running
-
-Development (both servers, hot reload):
+## Verify
 
 ```powershell
-powershell -File run_dev.ps1     # Windows
-bash run_dev.sh                  # Linux/macOS
+cd backend
+..\.venv\Scripts\python.exe -m pytest tests/test_dms.py -q
+cd ..\frontend
+npm run build
 ```
 
-Manual:
-
-```bash
-# terminal 1
-cd backend && ..\.venv\Scripts\python -m uvicorn app.main:app --reload --port 8000
-# terminal 2
-cd frontend && npm run dev
-```
-
-Open **http://localhost:5173**.
-
-Production-style single process (UI served by the API):
-
-```bash
-cd frontend && npm run build && cd ..
-cd backend && ..\.venv\Scripts\python -m uvicorn app.main:app --port 8000
-# open http://localhost:8000
-```
-
-
-### Environment variables
-
-See [.env.example](.env.example): `DATABASE_URL`, `CORS_ORIGINS`, `UPLOAD_DIR`, `MAX_UPLOAD_MB`, `FACE_VERIFICATION_ENABLED`, `LOG_LEVEL`, `VITE_API_BASE`. Never commit `.env`.
-
-## Demo
-
-The fastest tour:
-
-1. Open the app → **Screen Documents** → **Load Demo Case**.
-   This creates the synthetic *Rahul Sharma* case: passport A + national ID B agree (DOB 2001-05-12); PAN C shows DOB 1999-05-12 **and carries a genuinely manipulated pixel strip**. Expected outcome: HIGH-risk style review with cited evidence.
-2. Watch the live pipeline, then explore tabs: Documents (OCR + confidences) → Validation (MRZ checksums ✓) → Comparison (**DOB MISMATCH** highlighted) → Forensics (suspicious region boxed on the image) → Report (print-ready).
-3. Seed the whole dataset: `python -m demo.seed_cases` (6 synthetic cases incl. reuse detection).
-
-All persons/documents are fictional and visibly labeled. Details: [docs/demo-guide.md](docs/demo-guide.md).
-
-## API
-
-Full reference: [docs/api.md](docs/api.md). Quick list:
-
-```
-GET    /api/health
-POST   /api/cases                       GET /api/cases?search=&outcome=&sort=
-GET    /api/cases/{id}                  POST /api/cases/{id}/documents
-POST   /api/cases/{id}/analyze          GET /api/cases/{id}/analysis
-GET    /api/cases/{id}/comparison       GET /api/cases/{id}/validations
-GET    /api/cases/{id}/forensics        GET /api/cases/{id}/risk
-GET    /api/cases/{id}/report           GET/DELETE /api/documents/{id}[/file]
-GET    /api/dashboard/summary           GET /api/dashboard/recent
-POST   /api/demo/signature-case
-```
-
-## Limitations
-
-- Heuristic forensics detect **indicators**, not proof; sophisticated forgeries can pass, clean scans can trigger weak signals.
-- OCR quality depends on input quality; extraction relies on label patterns of supported layouts.
-- Synthetic documents do not represent all real-world formats; new templates are additive but must be registered.
-- No liveness detection; face verification is stubbed behind a flag (P2).
-- Reuse detection uses exact file hashing in the pipeline (perceptual matching disabled for flat scans).
-- The prototype has **no connection to government databases**; any authoritative verification would require authorized issuer integrations.
-
-## Future Scope
-
-Advanced face verification & liveness · fraud-ring analytics over the identity graph · issuer/government API integrations · multilingual OCR & UI · perceptual reuse tuned per document class · AI-assisted explanation drafting · PDF report export server-side.
-
-## Disclaimer
-
-> ID-SHIELD is a prototype for **assisted** identity verification. It does not determine legal authenticity. Final verification decisions must be made by authorized human personnel. All bundled data is synthetic.
+The API test exercises unauthorized access, case membership, encrypted evidence, searchable text, preserved versions, legal hold, reviews, password rotation and detection of file/audit tampering. Older ID-SHIELD tests target the dormant identity prototype and are not part of the CaseVault test suite.

@@ -1,5 +1,7 @@
 # Forensic Analysis
 
+> Legacy ID-SHIELD identity prototype reference. These analysis endpoints are not mounted in CaseVault.
+
 **What it is:** a transparent, model-free pipeline that surfaces *indicators of
 potential manipulation* with pixel-precise locations. It is **not** proof of
 forgery, and every UI surface repeats that.

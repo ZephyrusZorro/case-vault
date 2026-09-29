@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# ID-SHIELD development launcher (Linux/macOS)
+# CaseVault development launcher (Linux/macOS)
 # Starts backend (:8000) + frontend dev server (:5173). Ctrl+C stops both.
 set -e
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-echo "ID-SHIELD dev launcher"
+echo "CaseVault dev launcher"
 
 (cd "$ROOT/backend" && ../.venv/bin/python -m uvicorn app.main:app --reload --port 8000) &
 BACK=$!

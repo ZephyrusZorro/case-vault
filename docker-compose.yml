@@ -1,32 +1,15 @@
-# ID-SHIELD — local orchestration
-#
-#   docker compose up --build          # app only (SQLite, persisted volume)
-#   docker compose --profile postgres up --build   # app + PostgreSQL
-#
 services:
   app:
     build: .
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: sqlite:///./data/idshield.db
-      UPLOAD_DIR: ./data/uploads
-      LOG_LEVEL: INFO
+      DATABASE_URL: sqlite:////app/data/casevault.db
+      UPLOAD_DIR: /app/data/uploads
+      DMS_MASTER_KEY: ${DMS_MASTER_KEY:-}
+      DMS_SETUP_TOKEN: ${DMS_SETUP_TOKEN:-}
+      CORS_ORIGINS: ""
     volumes:
-      - idshield-data:/app/backend/data
-
-  db:
-    image: postgres:16-alpine
-    profiles: ["postgres"]
-    environment:
-      POSTGRES_USER: idshield
-      POSTGRES_PASSWORD: idshield
-      POSTGRES_DB: idshield
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-
+      - casevault-data:/app/data
 volumes:
-  idshield-data:
-  pgdata:
+  casevault-data:

@@ -1,4 +1,4 @@
-# Builds a self-contained ID-SHIELD offline package (zip).
+# Builds a self-contained CaseVault offline package (zip).
 #
 #   powershell -ExecutionPolicy Bypass -File scripts\make_offline_package.ps1
 #   powershell -ExecutionPolicy Bypass -File scripts\make_offline_package.ps1 -IncludeWheels
@@ -13,8 +13,8 @@ param([switch]$IncludeWheels)
 
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$Stage = Join-Path $env:TEMP ("idshield_pkg_" + [guid]::NewGuid().ToString("N").Substring(0, 8))
-$PkgName = "ID-SHIELD_Offline"
+$Stage = Join-Path $env:TEMP ("casevault_pkg_" + [guid]::NewGuid().ToString("N").Substring(0, 8))
+$PkgName = "CaseVault_Offline"
 $Dest = Join-Path $Root "$PkgName.zip"
 
 Write-Host "=== Building offline package ===" -ForegroundColor Cyan
@@ -25,7 +25,6 @@ if (-not (Test-Path (Join-Path $Root "frontend\dist\index.html"))) {
 
 $dirs = @(
     @{ src = "backend\app";      dst = "backend\app" },
-    @{ src = "backend\demo";     dst = "backend\demo" },
     @{ src = "frontend\dist";    dst = "frontend\dist" },
     @{ src = "scripts";          dst = "scripts" },
     @{ src = "docs";             dst = "docs" }
@@ -33,7 +32,7 @@ $dirs = @(
 $files = @(
     "backend\requirements.txt",
     ".env.example",
-    "start_idshield.bat",
+    "start_casevault.bat",
     "README-OFFLINE.txt"
 )
 

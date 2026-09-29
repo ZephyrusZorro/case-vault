@@ -15,15 +15,17 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_name: str = "ID-SHIELD"
-    app_version: str = "0.1.0"
-    app_tagline: str = "Explainable Identity & Document Forensics Platform"
+    app_name: str = "CaseVault"
+    app_version: str = "1.0.0"
+    app_tagline: str = "Secure legal and investigation document workspace"
 
-    database_url: str = f"sqlite:///{(BACKEND_DIR / 'data' / 'idshield.db').as_posix()}"
+    database_url: str = f"sqlite:///{(BACKEND_DIR / 'data' / 'casevault.db').as_posix()}"
     cors_origins: str = "http://localhost:5173"
 
     upload_dir: Path = BACKEND_DIR / "data" / "uploads"
-    max_upload_mb: int = 10
+    max_upload_mb: int = 25
+    dms_master_key: str | None = None
+    dms_setup_token: str | None = None
 
     face_verification_enabled: bool = False
 

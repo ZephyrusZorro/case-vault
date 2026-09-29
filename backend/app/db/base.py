@@ -67,7 +67,8 @@ def init_db() -> None:
         db_file = settings.database_url.split("///", 1)[-1]
         if db_file and db_file != ":memory:":
             Path(db_file).parent.mkdir(parents=True, exist_ok=True)
-    from app.db import models  # noqa: F401  (register models)
+    from app.dms import models  # noqa: F401  (register models)
 
     Base.metadata.create_all(bind=engine)
-    _migrate_schema(engine)
+    from app.dms.installation import check_and_migrate
+    check_and_migrate()

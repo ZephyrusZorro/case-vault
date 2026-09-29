@@ -1,10 +1,10 @@
 ﻿services:
   - type: web
-    name: id-shield
+    name: casevault-demo
     env: docker
     plan: free
     region: oregon
-    branch: main
+    branch: master
     dockerfilePath: ./Dockerfile
     envVars:
       - key: PORT

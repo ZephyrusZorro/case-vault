@@ -1,5 +1,7 @@
 # Deploying ID-SHIELD Online
 
+> Legacy ID-SHIELD deployment notes. For the running CaseVault app, use the root [README](../README.md) and [security scope](casevault-security.md). Do not deploy sensitive records using the instructions below.
+
 The same codebase that runs offline deploys unchanged — the container serves
 the built UI **and** the API on one port. Pick one of the options below; all
 of them can be free-tier friendly.

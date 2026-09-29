@@ -9,14 +9,9 @@ __pycache__
 !.env.example
 backend/data
 frontend/node_modules
-frontend/src
-frontend/public
-frontend/index.html
-frontend/package*.json
-frontend/vite.config.ts
-frontend/tsconfig.json
-frontend/postcss.config.js
-frontend/tailwind.config.js
+frontend/dist
+frontend/pnpm-lock.yaml
+frontend/pnpm-workspace.yaml
 docs
 scripts
 run_dev.ps1

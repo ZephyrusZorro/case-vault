@@ -1,5 +1,7 @@
 # API Reference
 
+> Legacy ID-SHIELD identity prototype reference. The running CaseVault API is documented in [casevault-api.md](casevault-api.md).
+
 Base URL (dev): `http://localhost:8000/api` — interactive docs at `/docs`.
 All responses JSON; errors use standard HTTP codes with `{"detail": "..."}`.
 
