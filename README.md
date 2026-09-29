@@ -95,3 +95,13 @@ npm run build
 ```
 
 The API test exercises unauthorized access, case membership, encrypted evidence, searchable text, preserved versions, legal hold, reviews, password rotation and detection of file/audit tampering. Older ID-SHIELD tests target the dormant identity prototype and are not part of the CaseVault test suite.
+
+## 🚀 Live Demo & Deployment
+
+- **Live URL:** [https://YOUR-RENDER-URL.onrender.com](https://YOUR-RENDER-URL.onrender.com)
+- **API Documentation:** [https://YOUR-RENDER-URL.onrender.com/docs](https://YOUR-RENDER-URL.onrender.com/docs)
+- **Deployment Platform:** Render (FastAPI Web Service)
+- **Status:** Active & Deployed
+
+> **Note for Evaluators:**  
+> First-time setup uses the pre-configured admin token: `myadmin1234567890abcdef`.
