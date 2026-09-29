@@ -27,7 +27,15 @@ class User(Base, TimestampMixin):
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     name: Mapped[str] = mapped_column(String(200))
     email: Mapped[str] = mapped_column(String(320), unique=True, index=True)
-    role: Mapped[str] = mapped_column(String(50), default="verifier")
+    password_hash: Mapped[str] = mapped_column(String(255), default="")
+    role: Mapped[str] = mapped_column(String(50), default="investigator")
+    # Roles: admin | investigator | reviewer | legal_officer | auditor
+    badge_number: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    department: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    clearance_level: Mapped[str] = mapped_column(String(30), default="confidential")
+    # unrestricted | restricted | confidential | secret | top_secret
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    last_login: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
 
 
 # ----------------------------------------------------------------- Case
@@ -36,9 +44,22 @@ class Case(Base, TimestampMixin):
 
     id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
     case_number: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    case_id: Mapped[str | None] = mapped_column(String(50), unique=True, index=True, nullable=True)
+    # e.g., CASE-2026-00124
     case_name: Mapped[str] = mapped_column(String(200))
-    status: Mapped[str] = mapped_column(String(30), default="draft")
-    # draft | processing | completed | failed
+    title: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    case_type: Mapped[str] = mapped_column(String(80), default="Women Safety Investigation")
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    department: Mapped[str] = mapped_column(String(120), default="NCRB Women Safety Division")
+    priority: Mapped[str] = mapped_column(String(20), default="medium")
+    # low | medium | high | critical
+    assigned_investigators: Mapped[list] = mapped_column(JSON, default=list)
+    lead_officer_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    created_by_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    status: Mapped[str] = mapped_column(String(30), default="open")
+    # open | active | pending_review | closed | archived | draft | processing
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now)
+
     overall_risk: Mapped[int | None] = mapped_column(Integer, nullable=True)
     recommendation: Mapped[str | None] = mapped_column(String(60), nullable=True)
     applicant_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
@@ -50,11 +71,20 @@ class Case(Base, TimestampMixin):
     reviewer_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
     reviewer_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    legal_hold: Mapped[bool] = mapped_column(Boolean, default=False)
+    legal_hold_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    legal_hold_applied_by: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    legal_hold_applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    classification_level: Mapped[str] = mapped_column(String(30), default="restricted")
+    # unrestricted | restricted | confidential | secret | top_secret
 
     documents: Mapped[list["Document"]] = relationship(
         back_populates="case", cascade="all, delete-orphan"
     )
     notifications: Mapped[list["CaseNotification"]] = relationship(
+        back_populates="case", cascade="all, delete-orphan"
+    )
+    audit_events: Mapped[list["AuditEvent"]] = relationship(
         back_populates="case", cascade="all, delete-orphan"
     )
 
@@ -79,6 +109,19 @@ class Document(Base, TimestampMixin):
     # uploaded | processing | done | error
     ocr_engine: Mapped[str | None] = mapped_column(String(40), nullable=True)
     ocr_mean_confidence: Mapped[float | None] = mapped_column(Float, nullable=True)
+    current_version_number: Mapped[int] = mapped_column(Integer, default=1)
+    exhibit_number: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    legal_category: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    classification_level: Mapped[str] = mapped_column(String(30), default="restricted")
+    is_sealed: Mapped[bool] = mapped_column(Boolean, default=False)
+    sealed_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sealed_by: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    sealed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    legal_hold: Mapped[bool] = mapped_column(Boolean, default=False)
+    legal_hold_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    legal_hold_applied_by: Mapped[str | None] = mapped_column(String(150), nullable=True)
+    legal_hold_applied_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    retention_period_years: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     case: Mapped[Case] = relationship(back_populates="documents")
     fields: Mapped[list["ExtractedField"]] = relationship(
@@ -90,6 +133,34 @@ class Document(Base, TimestampMixin):
     forensic_findings: Mapped[list["ForensicFinding"]] = relationship(
         back_populates="document", cascade="all, delete-orphan"
     )
+    versions: Mapped[list["DocumentVersion"]] = relationship(
+        back_populates="document", cascade="all, delete-orphan", order_by="DocumentVersion.version_number"
+    )
+
+
+# ------------------------------------------------------ DocumentVersion
+class DocumentVersion(Base, TimestampMixin):
+    """Cryptographically chained document version exhibit."""
+
+    __tablename__ = "document_versions"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    document_id: Mapped[str] = mapped_column(ForeignKey("documents.id"), index=True)
+    case_id: Mapped[str] = mapped_column(ForeignKey("cases.id"), index=True)
+    version_number: Mapped[int] = mapped_column(Integer, default=1)
+    file_name: Mapped[str] = mapped_column(String(255))
+    stored_path: Mapped[str] = mapped_column(String(500))
+    file_size: Mapped[int] = mapped_column(Integer, default=0)
+    mime_type: Mapped[str] = mapped_column(String(100), default="")
+    sha256_hash: Mapped[str] = mapped_column(String(64), index=True)
+    previous_version_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    version_tag: Mapped[str] = mapped_column(String(50), default="original_evidence")
+    # original_evidence | certified_copy | forensic_exhibit | court_redacted | revised_translation
+    change_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    uploaded_by_id: Mapped[str | None] = mapped_column(ForeignKey("users.id"), nullable=True)
+    uploaded_by_name: Mapped[str | None] = mapped_column(String(150), nullable=True)
+
+    document: Mapped[Document] = relationship(back_populates="versions")
 
 
 # ------------------------------------------------------- ExtractedField
@@ -207,3 +278,30 @@ class CaseNotification(Base, TimestampMixin):
     provider_info: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     case: Mapped[Case] = relationship(back_populates="notifications")
+
+
+# ----------------------------------------------------------- AuditEvent
+class AuditEvent(Base):
+    """Immutable, cryptographically chained audit log entry for chain-of-custody tracking."""
+
+    __tablename__ = "audit_events"
+
+    id: Mapped[str] = mapped_column(String(32), primary_key=True, default=_uuid)
+    sequence_number: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    event_type: Mapped[str] = mapped_column(String(80), index=True)
+    action: Mapped[str] = mapped_column(String(255))
+    case_id: Mapped[str | None] = mapped_column(ForeignKey("cases.id", ondelete="SET NULL"), nullable=True, index=True)
+    document_id: Mapped[str | None] = mapped_column(ForeignKey("documents.id", ondelete="SET NULL"), nullable=True, index=True)
+    user_id: Mapped[str | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    user_email: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    user_role: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    user_name: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    details: Mapped[dict] = mapped_column(JSON, default=dict)
+    timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_now, index=True)
+    previous_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    current_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    block_height: Mapped[int] = mapped_column(Integer, default=1)
+
+    case: Mapped[Case | None] = relationship(back_populates="audit_events")
+

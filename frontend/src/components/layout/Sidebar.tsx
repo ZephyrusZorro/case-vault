@@ -1,7 +1,8 @@
-import { NavLink } from "react-router-dom";
-import { ShieldCheck } from "lucide-react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { ShieldCheck, LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NAV_MAIN, NAV_SECONDARY, type NavItem } from "./navItems";
+import { useAuth } from "../../context/AuthContext";
 
 function NavButton({ item }: { item: NavItem }) {
   const { t } = useTranslation();
@@ -11,6 +12,7 @@ function NavButton({ item }: { item: NavItem }) {
     "Dashboard": "dashboard",
     "Screen Documents": "screen_documents",
     "Screening History": "screening_history",
+    "Audit Ledger": "audit_ledger",
     "Reports": "reports",
     "Analytics": "analytics",
     "User Management": "user_management",
@@ -39,7 +41,7 @@ function NavButton({ item }: { item: NavItem }) {
               isActive ? "text-slate-900" : "text-slate-400 group-hover:text-foreground"
             }`}
           />
-          <span className="hidden lg:inline">{t(`sidebar.${keyMap[item.label]}`)}</span>
+          <span className="hidden lg:inline">{t(`sidebar.${keyMap[item.label]}`, item.label)}</span>
         </>
       )}
     </NavLink>
@@ -48,6 +50,30 @@ function NavButton({ item }: { item: NavItem }) {
 
 export function Sidebar() {
   const { t } = useTranslation();
+  const { user, logout, hasRole } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((p) => p[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase()
+    : "PO";
+
+  const secondaryNav = NAV_SECONDARY.filter((item) => {
+    if (item.to === "/users") {
+      return hasRole(["admin", "reviewer"]);
+    }
+    return true;
+  });
+
   return (
     <aside className="hidden h-screen w-16 shrink-0 flex-col border-r-2 border-foreground bg-cream md:flex lg:w-60 transition-all duration-200 z-10">
       {/* Brand */}
@@ -58,14 +84,14 @@ export function Sidebar() {
         <div className="hidden min-w-0 lg:block">
           <div className="flex items-center gap-1.5">
             <span className="text-sm font-black tracking-wider text-foreground">
-              ID-SHIELD
+              NCRB DMS
             </span>
             <span className="rounded bg-accent-yellow px-1.5 py-0.5 text-[9px] font-black text-slate-900 border-2 border-foreground shadow-hard-active">
-              v0.1
+              SECURE
             </span>
           </div>
           <p className="text-[10px] font-extrabold tracking-tight text-slate-500">
-            {t("sidebar.forensics_intelligence")}
+            Legal &amp; Investigation DMS
           </p>
         </div>
       </div>
@@ -89,26 +115,37 @@ export function Sidebar() {
         <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-500 hidden lg:block">
           {t("sidebar.platform_diagnostics")}
         </div>
-        {NAV_SECONDARY.map((item) => (
+        {secondaryNav.map((item) => (
           <NavButton key={item.to} item={item} />
         ))}
       </nav>
 
-      {/* Footer / Verifier Profile */}
-      <div className="border-t-2 border-foreground/10 p-2 lg:p-3">
-        <div className="flex items-center justify-center gap-2.5 rounded-xl bg-white border-2 border-foreground shadow-hard p-1.5 lg:justify-start">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-accent-pink border-2 border-foreground text-xs font-black text-white shadow-hard-active">
-            AV
+      {/* Footer / User Profile & Logout */}
+      <div className="border-t-2 border-foreground/10 p-2 lg:p-3 space-y-2">
+        <div className="flex items-center justify-between gap-2 rounded-xl bg-white border-2 border-foreground shadow-hard p-2">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-accent-pink border-2 border-foreground text-xs font-black text-white shadow-hard-active">
+              {initials}
+            </div>
+            <div className="hidden min-w-0 flex-1 lg:block">
+              <p className="truncate text-xs font-black text-foreground" title={user?.name || "Officer"}>
+                {user?.name || "Active Personnel"}
+              </p>
+              <p className="text-[10px] text-slate-500 font-bold capitalize flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-accent-mint border border-foreground animate-pulse" />
+                {user?.role?.replace("_", " ") || "Officer"}
+                {user?.badge_number ? ` · ${user.badge_number}` : ""}
+              </p>
+            </div>
           </div>
-          <div className="hidden min-w-0 flex-1 lg:block">
-            <p className="truncate text-xs font-black text-foreground">
-              A. Verifier
-            </p>
-            <p className="text-[10px] text-slate-500 font-bold flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-accent-mint border border-foreground animate-pulse" />
-              Officer · Level 3
-            </p>
-          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            title="Terminate session / Sign out"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       </div>
     </aside>

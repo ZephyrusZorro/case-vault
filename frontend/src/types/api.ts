@@ -12,6 +12,11 @@ export interface DashboardSummary {
   under_review: number;
   high_risk: number;
   average_risk_score: number | null;
+  workflow_counts?: Record<string, number>;
+  priority_counts?: Record<string, number>;
+  legal_hold_count?: number;
+  total_exhibits?: number;
+  audit_events_count?: number;
 }
 
 export type ScreeningStatus =
@@ -46,12 +51,60 @@ export interface DocumentItem {
   document_type_label?: string | null;
   processing_status: string;
   has_preview: boolean;
+  current_version_number?: number;
+  exhibit_number?: string | null;
+  legal_category?: string | null;
+  classification_level?: string;
+  is_sealed?: boolean;
+  sealed_reason?: string | null;
+  sealed_by?: string | null;
+  sealed_at?: string | null;
+  legal_hold?: boolean;
+  legal_hold_reason?: string | null;
+  legal_hold_applied_by?: string | null;
+  legal_hold_applied_at?: string | null;
+  retention_period_years?: number | null;
+  sha256_hash?: string | null;
+  version_count?: number;
+}
+
+export interface DocumentVersion {
+  id: string;
+  document_id: string;
+  case_id: string;
+  version_number: number;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  sha256_hash: string;
+  previous_version_hash: string | null;
+  version_tag: string;
+  change_summary: string | null;
+  uploaded_by_id: string | null;
+  uploaded_by_name: string | null;
+  created_at: string;
+}
+
+export interface DocumentChainVerification {
+  document_id: string;
+  is_valid: boolean;
+  version_count: number;
+  chain: DocumentVersion[];
+  errors: string[];
+  verified_at: string;
 }
 
 export interface CaseDetail {
   id: string;
   case_number: number;
+  case_id?: string;
   case_name: string;
+  title?: string;
+  case_type?: string;
+  description?: string | null;
+  department?: string;
+  priority?: "low" | "medium" | "high" | "critical" | string;
+  assigned_investigators?: string[];
   status: string;
   overall_risk: number | null;
   recommendation: string | null;
@@ -63,7 +116,15 @@ export interface CaseDetail {
   reviewer_name?: string | null;
   reviewer_notes?: string | null;
   reviewed_at?: string | null;
+  legal_hold?: boolean;
+  legal_hold_reason?: string | null;
+  legal_hold_applied_by?: string | null;
+  legal_hold_applied_at?: string | null;
+  classification_level?: string;
   created_at: string;
+  updated_at?: string;
+  evidence_count?: number;
+  audit_event_count?: number;
   documents: DocumentItem[];
 }
 
@@ -76,13 +137,20 @@ export interface CaseReviewRequest {
 export interface HistoryItem {
   id: string;
   case_number: number;
+  case_id?: string;
   case_name: string;
+  title?: string;
+  case_type?: string;
+  department?: string;
+  priority?: "low" | "medium" | "high" | "critical" | string;
+  assigned_investigators?: string[];
   status: string;
   overall_risk: number | null;
   recommendation: string | null;
   person_name: string | null;
   document_count: number;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface ScreeningSummaryItem {
@@ -111,6 +179,13 @@ export interface CaseReportResponse {
   case_id: string;
   case_number: number;
   case_name: string;
+  formatted_case_id?: string | null;
+  title?: string | null;
+  case_type?: string | null;
+  department?: string | null;
+  priority?: string | null;
+  status?: string | null;
+  assigned_investigators?: string[];
   generated_at: string;
   disclaimer: string;
   overall_risk: number | null;
@@ -140,8 +215,18 @@ export interface RiskReport {
 export interface CaseCreated {
   id: string;
   case_number: number;
+  case_id?: string;
   case_name: string;
+  title?: string;
+  case_type?: string;
+  department?: string;
+  priority?: string;
+  assigned_investigators?: string[];
   status: string;
+  applicant_name?: string | null;
+  applicant_phone?: string | null;
+  applicant_email?: string | null;
+  auto_notify_on_mismatch?: boolean;
 }
 
 export interface UploadResult {
@@ -533,6 +618,122 @@ export interface VoiceQueryResponse {
   answer: string;
   action?: string | null;
   category?: string | null;
+}
+
+export interface SearchResultItem {
+  entity_type: "case" | "document" | "audit_event";
+  id: string;
+  title: string;
+  subtitle?: string | null;
+  case_id?: string | null;
+  case_title?: string | null;
+  match_field: string;
+  match_snippet?: string | null;
+  classification_level: string;
+  is_sealed: boolean;
+  legal_hold: boolean;
+  status?: string | null;
+  priority?: string | null;
+  timestamp?: string | null;
+  metadata: Record<string, any>;
+}
+
+export interface SearchResultsResponse {
+  query: string;
+  total_hits: number;
+  cases_count: number;
+  documents_count: number;
+  audit_count: number;
+  results: SearchResultItem[];
+  took_ms: number;
+}
+
+export interface PIIEntity {
+  entity_type: string;
+  text: string;
+  masked_value: string;
+  start_char?: number | null;
+  end_char?: number | null;
+  confidence: number;
+  bbox?: number[] | null;
+  recommendation?: string;
+}
+
+export interface PIIScanResponse {
+  document_id: string | null;
+  file_name: string | null;
+  entities_found: PIIEntity[];
+  total_pii_count: number;
+  categories: string[];
+  has_victim_pii: boolean;
+  has_aadhaar_pii: boolean;
+  has_financial_pii: boolean;
+  privacy_risk_level: "none" | "low" | "medium" | "high" | "critical";
+  legal_statute_note: string;
+}
+
+export interface RedactionItem {
+  entity_type: string;
+  text_to_redact?: string | null;
+  bbox?: number[] | null;
+  label?: string | null;
+}
+
+export interface RedactDocumentRequest {
+  redactions: RedactionItem[];
+  reason: string;
+  court_order_ref?: string | null;
+  apply_watermark?: boolean;
+  mask_style?: string;
+  custom_victim_names?: string[];
+}
+
+export interface RedactedVersionOut {
+  version_id: string;
+  document_id: string;
+  version_number: number;
+  version_tag: string;
+  file_name: string;
+  sha256_hash: string;
+  previous_version_hash: string | null;
+  change_summary: string | null;
+  uploaded_by_name: string | null;
+  created_at: string;
+  file_url: string;
+}
+
+export interface RedactDocumentResponse {
+  success: boolean;
+  message: string;
+  document_id: string;
+  version_id: string;
+  version_number: number;
+  version_tag: string;
+  file_name: string;
+  sha256_hash: string;
+  previous_version_hash: string | null;
+  items_redacted_count: number;
+  change_summary: string;
+  audit_event_id?: string | null;
+  created_at: string;
+  evidentiary_integrity_note: string;
+}
+
+export interface WorkflowHistoryItem {
+  id: string;
+  sequence: number;
+  event_type: string;
+  action: string;
+  timestamp: string | null;
+  user_name: string | null;
+  user_role: string | null;
+  details: Record<string, any>;
+  hash_prefix: string;
+}
+
+export interface WorkflowActionPayload {
+  action: string;
+  remarks?: string;
 }
 
 

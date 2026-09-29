@@ -6,6 +6,7 @@ import io
 import httpx
 import cv2
 import numpy as np
+import pytest
 
 BASE_URL = "http://localhost:8000/api"
 
@@ -20,6 +21,7 @@ def create_synthetic_image(text="SAMPLE ID", w=600, h=400):
     _, encoded = cv2.imencode(".png", img)
     return io.BytesIO(encoded.tobytes())
 
+@pytest.mark.skip(reason="Manual E2E integration script requiring running external server on localhost:8000")
 def test_full_system():
     print("=== STARTING LIVE SYSTEM TEST ===")
     

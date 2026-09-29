@@ -11,6 +11,8 @@ from fastapi.staticfiles import StaticFiles
 from app.api import (
     routes_analysis,
     routes_analytics,
+    routes_audit,
+    routes_auth,
     routes_cases,
     routes_comparison,
     routes_dashboard,
@@ -19,8 +21,11 @@ from app.api import (
     routes_forensics,
     routes_health,
     routes_notifications,
+    routes_redaction,
     routes_risk,
     routes_report,
+    routes_search,
+    routes_users,
     routes_voice,
 )
 from app.core.config import settings
@@ -41,9 +46,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description=(
-        "Explainable identity & document forensics platform. "
-        "Prototype for assisted verification - final decisions remain with "
-        "authorized human personnel."
+        "Secure Digital Document Management System for Legal and Investigation Documents "
+        "(Ministry of Home Affairs / NCRB). Features supporting confidentiality, auditability, "
+        "document integrity, version control, and evidentiary traceability."
     ),
     version=settings.app_version,
     lifespan=lifespan,
@@ -72,9 +77,14 @@ async def security_headers(request, call_next):  # noqa: ANN001, ANN201
 
 
 app.include_router(routes_health.router, prefix="/api", tags=["system"])
+app.include_router(routes_auth.router, prefix="/api", tags=["authentication"])
+app.include_router(routes_users.router, prefix="/api", tags=["users"])
+app.include_router(routes_audit.router, prefix="/api", tags=["audit"])
 app.include_router(routes_dashboard.router, prefix="/api", tags=["dashboard"])
 app.include_router(routes_analytics.router, prefix="/api", tags=["analytics"])
 app.include_router(routes_cases.router, prefix="/api", tags=["cases"])
+app.include_router(routes_redaction.router)
+app.include_router(routes_search.router, prefix="/api", tags=["search"])
 app.include_router(routes_analysis.router, prefix="/api", tags=["analysis"])
 app.include_router(routes_comparison.router, prefix="/api", tags=["comparison"])
 app.include_router(routes_forensics.router, prefix="/api", tags=["forensics"])

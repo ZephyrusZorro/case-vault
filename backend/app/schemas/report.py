@@ -19,6 +19,11 @@ class ReportDocument(BaseModel):
     ocr_mean_confidence: float | None
     fields: list[ReportField]
     validation_overall: str | None = None
+    exhibit_number: str | None = None
+    legal_category: str | None = None
+    classification_level: str | None = None
+    current_version_number: int | None = None
+    file_hash: str | None = None
 
 
 class ScreeningSummaryItem(BaseModel):
@@ -36,6 +41,13 @@ class CaseReport(BaseModel):
     case_id: str
     case_number: int
     case_name: str
+    formatted_case_id: str | None = None
+    title: str | None = None
+    case_type: str | None = None
+    department: str | None = None
+    priority: str | None = None
+    status: str | None = None
+    assigned_investigators: list[str] = []
     generated_at: datetime
     disclaimer: str
     overall_risk: int | None

@@ -77,3 +77,53 @@ def resolve_within(base_dir: Path, relative_name: str) -> Path:
     if not candidate.is_relative_to(base):
         raise UploadValidationError("Invalid file path.")
     return candidate
+
+
+# =====================================================================
+# Cryptographic Password Hashing (Bcrypt) & JWT Access Tokens
+# =====================================================================
+import bcrypt
+import jwt
+from datetime import datetime, timedelta, timezone
+from app.core.config import settings
+
+
+def hash_password(password: str) -> str:
+    """Hash a password using bcrypt with a salt."""
+    salt = bcrypt.gensalt(rounds=12)
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify a plain password against a stored bcrypt hash."""
+    if not hashed_password:
+        return False
+    try:
+        return bcrypt.checkpw(
+            plain_password.encode("utf-8"),
+            hashed_password.encode("utf-8"),
+        )
+    except Exception:
+        return False
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
+    """Generate a signed JWT access token."""
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (
+        expires_delta or timedelta(minutes=settings.jwt_access_token_expire_minutes)
+    )
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+
+
+def decode_access_token(token: str) -> dict | None:
+    """Validate and decode a signed JWT access token."""
+    try:
+        return jwt.decode(
+            token,
+            settings.jwt_secret_key,
+            algorithms=[settings.jwt_algorithm],
+        )
+    except (jwt.PyJWTError, Exception):
+        return None

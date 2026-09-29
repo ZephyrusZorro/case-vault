@@ -1,11 +1,13 @@
 import {
   LayoutDashboard,
-  FileScan,
-  History,
+  FolderOpen,
+  Search,
+  BookOpen,
   FileText,
   BarChart3,
   Users,
   Settings,
+  FilePlus,
   type LucideIcon,
 } from "lucide-react";
 
@@ -17,9 +19,11 @@ export interface NavItem {
 
 export const NAV_MAIN: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/screen/new", label: "Screen Documents", icon: FileScan },
-  { to: "/history", label: "Screening History", icon: History },
-  { to: "/reports", label: "Reports", icon: FileText },
+  { to: "/history", label: "Case Directory", icon: FolderOpen },
+  { to: "/screen/new", label: "New Investigation", icon: FilePlus },
+  { to: "/search", label: "Unified Search", icon: Search },
+  { to: "/audit", label: "Audit Ledger", icon: BookOpen },
+  { to: "/reports", label: "Reports & Certificates", icon: FileText },
 ];
 
 export const NAV_SECONDARY: NavItem[] = [

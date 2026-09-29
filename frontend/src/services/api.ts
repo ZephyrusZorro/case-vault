@@ -29,14 +29,28 @@ async function extractDetail(response: Response): Promise<string> {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = localStorage.getItem("ncrb_auth_token");
+  const headers = new Headers(init?.headers);
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
   let response: Response;
   try {
-    response = await fetch(`${API_BASE}${path}`, init);
+    response = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers,
+    });
   } catch {
     throw new ApiError(0, "Backend is unreachable. Is the API server running?");
   }
   if (!response.ok) {
     const detail = await extractDetail(response);
+    if (response.status === 401 && !path.includes("/auth/login")) {
+      // Discard invalid/expired token
+      localStorage.removeItem("ncrb_auth_token");
+      window.dispatchEvent(new CustomEvent("ncrb:unauthorized"));
+    }
     throw new ApiError(
       response.status,
       detail || `Request failed (${response.status})`,

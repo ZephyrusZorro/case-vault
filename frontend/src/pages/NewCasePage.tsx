@@ -20,19 +20,40 @@ const ACCEPTED = ".jpg,.jpeg,.png,.pdf";
 const MAX_MB = 10;
 const MAX_BYTES = MAX_MB * 1024 * 1024;
 
-const DOC_CATEGORIES = [
-  "Aadhaar Card",
-  "PAN Card",
-  "Driving Licence",
-  "Passport",
-  "Voter ID (EPIC)",
-  "National ID",
-  "Address Proof",
-  "Visa",
-  "Certificate",
-  "Other / Unknown",
+const CASE_TYPES = [
+  "Women Safety Investigation",
+  "Cyber Crime Investigation",
+  "Identity Forgery Investigation",
+  "Evidence Tampering Analysis",
+  "Financial Fraud Investigation",
+  "Missing Person Inquiry",
+  "General Investigation",
 ];
 
+const DEPARTMENTS = [
+  "NCRB Women Safety Division",
+  "Cyber Crime Cell",
+  "Special Investigation Team (SIT)",
+  "State Crime Branch",
+  "Digital Forensics Lab",
+];
+
+const PRIORITIES = [
+  { value: "critical", label: "Critical", tone: "bg-rose-100 text-rose-800 border-rose-300" },
+  { value: "high", label: "High", tone: "bg-amber-100 text-amber-800 border-amber-300" },
+  { value: "medium", label: "Medium", tone: "bg-blue-100 text-blue-800 border-blue-300" },
+  { value: "low", label: "Low", tone: "bg-slate-100 text-slate-800 border-slate-300" },
+];
+
+const DOC_CATEGORIES = [
+  "FIR / Police Complaint",
+  "Forensic Audit Certificate",
+  "Identity Document (Aadhaar/PAN/Voter/Passport)",
+  "Legal Notice / Court Order",
+  "Investigation Case Diary",
+  "Digital Evidence Log",
+  "Other / Unknown",
+];
 
 interface PendingFile {
   key: string;
@@ -49,12 +70,23 @@ export function NewCasePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [caseName, setCaseName] = useState("");
+  
+  // Investigation case details
+  const [title, setTitle] = useState("");
+  const [caseType, setCaseType] = useState(CASE_TYPES[0]);
+  const [department, setDepartment] = useState(DEPARTMENTS[0]);
+  const [priority, setPriority] = useState<"low" | "medium" | "high" | "critical">("medium");
+  const [description, setDescription] = useState("");
+  const [investigators, setInvestigators] = useState("");
+
+  // Applicant / Complainant details
   const [applicantName, setApplicantName] = useState("");
   const [applicantPhone, setApplicantPhone] = useState("");
   const [applicantEmail, setApplicantEmail] = useState("");
   const [autoNotify, setAutoNotify] = useState(false);
   const [showContactFields, setShowContactFields] = useState(false);
+
+  // Files
   const [files, setFiles] = useState<PendingFile[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -114,40 +146,56 @@ export function NewCasePage() {
     if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
   };
 
-  const canSubmit = caseName.trim().length > 0 && files.length > 0 && !submitting;
+  const canSubmit = title.trim().length > 0 && !submitting;
 
   const startScreening = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
     setError(null);
     try {
+      const parsedInvestigators = investigators
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+
       const created = await apiPost<CaseCreated>("/api/cases", {
-        case_name: caseName.trim(),
+        title: title.trim(),
+        case_name: title.trim(),
+        case_type: caseType,
+        department: department,
+        priority: priority,
+        description: description.trim() || null,
+        assigned_investigators: parsedInvestigators,
         applicant_name: applicantName.trim() || null,
         applicant_phone: applicantPhone.trim() || null,
         applicant_email: applicantEmail.trim() || null,
         auto_notify_on_mismatch: autoNotify,
       });
-      const form = new FormData();
-      files.forEach((f) => form.append("files", f.file));
-      const result = await apiPostForm<UploadResult>(
-        `/api/cases/${created.id}/documents`,
-        form,
-      );
-      files.forEach((f) => f.previewUrl && URL.revokeObjectURL(f.previewUrl));
-      if (result.failed.length > 0) {
-        setError(
-          result.failed.map((f) => `"${f.file_name}" — ${f.error}`).join(" "),
+
+      if (files.length > 0) {
+        const form = new FormData();
+        files.forEach((f) => form.append("files", f.file));
+        const result = await apiPostForm<UploadResult>(
+          `/api/cases/${created.id}/documents`,
+          form,
         );
-        if (result.uploaded.length === 0) {
-          setSubmitting(false);
-          return;
+        files.forEach((f) => f.previewUrl && URL.revokeObjectURL(f.previewUrl));
+        if (result.failed.length > 0) {
+          setError(
+            result.failed.map((f) => `"${f.file_name}" — ${f.error}`).join(" "),
+          );
+          if (result.uploaded.length === 0) {
+            setSubmitting(false);
+            return;
+          }
         }
+        await apiPost(`/api/cases/${created.id}/analyze`);
+        navigate(`/screen/processing/${created.id}`);
+      } else {
+        navigate(`/cases/${created.id}`);
       }
-      await apiPost(`/api/cases/${created.id}/analyze`);
-      navigate(`/screen/processing/${created.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed.");
+      setError(err instanceof Error ? err.message : "Case registration failed.");
       setSubmitting(false);
     }
   };
@@ -167,15 +215,15 @@ export function NewCasePage() {
   return (
     <div className="mx-auto max-w-4xl animate-fade-in space-y-6">
       <PageHeader
-        title={t("cases.new_title")}
-        subtitle={t("cases.new_subtitle")}
+        title="Open Legal / Investigation Case"
+        subtitle="Register an official inquiry dossier under NCRB / MHA guidelines with role-based evidentiary controls"
         actions={
           <button
             type="button"
             onClick={loadDemoCase}
             disabled={submitting}
             className="btn-secondary flex items-center gap-1.5"
-            title="Loads synthetic test documents into the 11-stage pipeline"
+            title="Loads synthetic test documents into the investigation pipeline"
           >
             {submitting ? (
               <Loader2 size={15} className="animate-spin" aria-hidden="true" />
@@ -188,20 +236,107 @@ export function NewCasePage() {
       />
 
       <div className="card p-6 space-y-6">
-        {/* Case name */}
-        <div>
-          <label htmlFor="case-name" className="mb-2 block text-xs font-bold uppercase tracking-wider text-foreground ">
-            {t("new_case.identifier")} <span className="text-rose-500">*</span>
-          </label>
-          <input
-            id="case-name"
-            type="text"
-            className="input-field"
-            placeholder={t("new_case.identifier_ph")}
-            value={caseName}
-            maxLength={200}
-            onChange={(e) => setCaseName(e.target.value)}
-          />
+        {/* Core Investigation Details */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+            <Shield size={16} className="text-blue-600" />
+            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+              Investigation Dossier Metadata
+            </h3>
+          </div>
+
+          <div>
+            <label htmlFor="case-title" className="mb-1 block text-xs font-bold uppercase tracking-wider text-foreground">
+              Case Title / Subject <span className="text-rose-500">*</span>
+            </label>
+            <input
+              id="case-title"
+              type="text"
+              className="input-field"
+              placeholder="e.g. Investigation into Digital Evidence Forgery — Case Reference #2026-00124"
+              value={title}
+              maxLength={200}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div>
+              <label htmlFor="case-type" className="mb-1 block text-xs font-bold text-slate-700">
+                Case Classification
+              </label>
+              <select
+                id="case-type"
+                className="input-field text-xs"
+                value={caseType}
+                onChange={(e) => setCaseType(e.target.value)}
+              >
+                {CASE_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="case-dept" className="mb-1 block text-xs font-bold text-slate-700">
+                Department / Cell
+              </label>
+              <select
+                id="case-dept"
+                className="input-field text-xs"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+              >
+                {DEPARTMENTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="case-priority" className="mb-1 block text-xs font-bold text-slate-700">
+                Priority Tier
+              </label>
+              <select
+                id="case-priority"
+                className="input-field text-xs font-bold capitalize"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value as any)}
+              >
+                {PRIORITIES.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="case-investigators" className="mb-1 block text-xs font-bold text-slate-700">
+              Assigned Officers / Investigators <span className="text-[10px] font-normal text-slate-400">(Comma separated)</span>
+            </label>
+            <input
+              id="case-investigators"
+              type="text"
+              className="input-field text-xs"
+              placeholder="e.g. Insp. Vikramaditya, Sub-Insp. Kavita Sharma, DySP R. Verma"
+              value={investigators}
+              onChange={(e) => setInvestigators(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="case-description" className="mb-1 block text-xs font-bold text-slate-700">
+              Incident Summary &amp; Legal Context <span className="text-[10px] font-normal text-slate-400">(Optional background / FIR notes)</span>
+            </label>
+            <textarea
+              id="case-description"
+              rows={3}
+              className="input-field text-xs resize-y"
+              placeholder="Record preliminary facts, FIR references, seized hardware identifiers, or legal directives under investigation..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </div>
         </div>
 
         {/* Optional Applicant Contact & Alerts */}
@@ -284,7 +419,7 @@ export function NewCasePage() {
         {/* Dropzone */}
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wider text-foreground ">
-            {t("new_case.upload")} <span className="text-rose-500">*</span>
+            Initial Evidence Documents &amp; Digital Files <span className="text-slate-400 font-normal">(Optional during initial registration)</span>
           </p>
           <button
             type="button"
@@ -400,10 +535,12 @@ export function NewCasePage() {
             {submitting ? (
               <>
                 <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                Uploading &amp; Initiating Pipeline…
+                Registering &amp; Processing Dossier…
               </>
+            ) : files.length > 0 ? (
+              "Register Case & Initiate Pipeline"
             ) : (
-              t("cases.start_screening")
+              "Register Investigation Case Dossier"
             )}
           </button>
         </div>

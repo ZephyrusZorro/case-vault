@@ -17,7 +17,12 @@ class DashboardSummary(BaseModel):
     valid: int
     under_review: int
     high_risk: int
-    average_risk_score: float | None
+    average_risk_score: float | None = None
+    workflow_counts: dict[str, int] = {}
+    priority_counts: dict[str, int] = {}
+    legal_hold_count: int = 0
+    total_exhibits: int = 0
+    audit_events_count: int = 0
 
 
 class RecentScreeningItem(BaseModel):

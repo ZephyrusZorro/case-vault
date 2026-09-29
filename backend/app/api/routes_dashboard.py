@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from fastapi import APIRouter, Depends
 
 from app.db.base import get_db
-from app.db.models import Case
+from app.db.models import Case, Document, AuditEvent
 from app.schemas.common import (
     DashboardSummary,
     RecentScreeningItem,
@@ -35,16 +35,44 @@ def _bucket(recommendation: str | None, overall_risk: int | None) -> str:
 @router.get("/dashboard/summary", response_model=DashboardSummary)
 def dashboard_summary(db: Session = Depends(get_db)) -> DashboardSummary:
     total = db.scalar(select(func.count(Case.id))) or 0
-    completed = db.scalars(select(Case)).all()
+    all_cases = db.scalars(select(Case)).all()
 
     buckets = {"valid": 0, "under_review": 0, "high_risk": 0}
+    workflow_counts: dict[str, int] = {
+        "open": 0,
+        "under_investigation": 0,
+        "pending_review": 0,
+        "pending_legal_review": 0,
+        "court_ready": 0,
+        "closed": 0,
+    }
+    priority_counts: dict[str, int] = {
+        "critical": 0,
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+    }
+    legal_hold_count = 0
     risk_values: list[int] = []
-    for case in completed:
+
+    for case in all_cases:
         b = _bucket(case.recommendation, case.overall_risk)
         if b in buckets:
             buckets[b] += 1
         if case.overall_risk is not None:
             risk_values.append(case.overall_risk)
+
+        st = case.status or "open"
+        workflow_counts[st] = workflow_counts.get(st, 0) + 1
+
+        prio = case.priority or "medium"
+        priority_counts[prio] = priority_counts.get(prio, 0) + 1
+
+        if case.legal_hold:
+            legal_hold_count += 1
+
+    total_exhibits = db.scalar(select(func.count(Document.id))) or 0
+    audit_events_count = db.scalar(select(func.count(AuditEvent.id))) or 0
 
     avg = round(sum(risk_values) / len(risk_values), 1) if risk_values else None
     return DashboardSummary(
@@ -53,6 +81,11 @@ def dashboard_summary(db: Session = Depends(get_db)) -> DashboardSummary:
         under_review=buckets["under_review"],
         high_risk=buckets["high_risk"],
         average_risk_score=avg,
+        workflow_counts=workflow_counts,
+        priority_counts=priority_counts,
+        legal_hold_count=legal_hold_count,
+        total_exhibits=total_exhibits,
+        audit_events_count=audit_events_count,
     )
 
 

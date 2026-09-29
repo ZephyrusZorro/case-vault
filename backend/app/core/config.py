@@ -15,12 +15,17 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    app_name: str = "ID-SHIELD"
-    app_version: str = "0.1.0"
-    app_tagline: str = "Explainable Identity & Document Forensics Platform"
+    app_name: str = "Secure Digital DMS"
+    app_version: str = "1.0.0"
+    app_tagline: str = "Secure Legal & Investigation Document Management Platform - NCRB"
 
     database_url: str = f"sqlite:///{(BACKEND_DIR / 'data' / 'idshield.db').as_posix()}"
     cors_origins: str = "http://localhost:5173"
+
+    # JWT Authentication & RBAC
+    jwt_secret_key: str = "ncrb-secure-digital-dms-jwt-secret-key-2026-production"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 480  # 8 hours session
 
     upload_dir: Path = BACKEND_DIR / "data" / "uploads"
     max_upload_mb: int = 10

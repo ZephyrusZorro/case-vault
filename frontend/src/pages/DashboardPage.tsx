@@ -8,6 +8,14 @@ import {
   Plus,
   ArrowRight,
   Sparkles,
+  Shield,
+  FileCheck,
+  Scale,
+  FolderOpen,
+  Hash,
+  Clock,
+  UserCheck,
+  Lock,
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { MetricCard, SkeletonRows } from "../components/dashboard/MetricCard";
@@ -15,6 +23,7 @@ import { StatusBadge, statusToBadge } from "../components/dashboard/StatusBadge"
 import { EmptyState } from "../components/layout/PageHeader";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../hooks/useApi";
+import { useAuth } from "../context/AuthContext";
 import type { DashboardSummary, RecentScreeningsResponse } from "../types/api";
 
 const DONUT_COLORS: Record<string, string> = {
@@ -35,6 +44,7 @@ function timeAgo(iso: string): string {
 
 export function DashboardPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const summary = useApi<DashboardSummary>("/api/dashboard/summary");
   const recent = useApi<RecentScreeningsResponse>("/api/dashboard/recent");
 
@@ -48,35 +58,87 @@ export function DashboardPage() {
           { name: "High Risk", value: s.high_risk },
         ].filter((d) => d.value > 0);
 
+  const wf = s?.workflow_counts || {};
+  const currentRole = user?.role || "investigator";
+
+  // Role action prompt
+  const supervisorPending = wf["pending_review"] || 0;
+  const legalPending = wf["pending_legal_review"] || 0;
+
   return (
     <div className="mx-auto max-w-7xl animate-fade-in space-y-6">
       {/* Top Banner with Quick Actions */}
-      <div className="card relative overflow-hidden p-5 sm:p-6 bg-accent-violet border-2 border-foreground shadow-hard text-white">
+      <div className="card relative overflow-hidden p-5 sm:p-6 bg-gradient-to-r from-blue-900 via-slate-900 to-indigo-950 border-2 border-foreground shadow-hard text-white">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1 rounded-full bg-accent-mint px-2.5 py-0.5 text-xs font-extrabold text-slate-900 border-2 border-foreground shadow-hard-active">
                 <Sparkles size={13} aria-hidden="true" strokeWidth={2.5} />
-                {t("dashboard.live_active")}
+                NCRB Forensic Command Center
+              </span>
+              <span className="rounded bg-white/10 px-2 py-0.5 text-xs font-mono font-bold text-slate-300">
+                Bharatiya Sakshya Adhiniyam Sec 65B
               </span>
             </div>
             <h2 className="mt-3 text-2xl font-black text-white">
               {t("dashboard.title")}
             </h2>
-            <p className="mt-2 text-sm font-bold text-white/90 max-w-xl">
-              {t("dashboard.subtitle")}
+            <p className="mt-2 text-sm font-medium text-slate-300 max-w-xl">
+              National statutory identity screening, forensic document verification, and tamper-evident evidentiary chain management.
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2.5">
+            <Link
+              to="/audit"
+              className="inline-flex items-center gap-1.5 rounded-xl border-2 border-white/80 bg-white/10 px-3.5 py-2 text-xs font-bold text-white backdrop-blur hover:bg-white/20 transition-all shadow-hard active:translate-y-0.5"
+            >
+              <Hash size={14} className="text-emerald-400" />
+              <span>Audit Ledger</span>
+            </Link>
             <Link
               to="/screen/new"
-              className="btn-primary flex items-center gap-1.5 "
+              className="btn-primary flex items-center gap-1.5"
             >
               <Plus size={16} aria-hidden="true" />
               <span>{t("dashboard.screen_new")}</span>
             </Link>
           </div>
         </div>
+
+        {/* Role-Specific Triage Banner */}
+        {currentRole === "supervisor" && supervisorPending > 0 && (
+          <div className="mt-4 rounded-xl border border-amber-400/60 bg-amber-500/20 p-3 text-xs flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-amber-200">
+              <UserCheck size={16} className="text-amber-300 shrink-0" />
+              <span>
+                <strong>Action Required:</strong> You have <strong>{supervisorPending}</strong> case(s) waiting for your Supervisor Review &amp; Approval.
+              </span>
+            </div>
+            <Link
+              to="/history"
+              className="rounded-lg bg-amber-400 px-2.5 py-1 text-[11px] font-black text-slate-950 hover:bg-amber-300 transition-colors shrink-0"
+            >
+              Review Dossiers →
+            </Link>
+          </div>
+        )}
+
+        {(currentRole === "legal_officer" || currentRole === "admin") && legalPending > 0 && (
+          <div className="mt-4 rounded-xl border border-indigo-400/60 bg-indigo-500/20 p-3 text-xs flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-indigo-200">
+              <Scale size={16} className="text-indigo-300 shrink-0" />
+              <span>
+                <strong>Legal Compliance:</strong> You have <strong>{legalPending}</strong> case(s) awaiting your Legal Officer Sign-off for Court Docket.
+              </span>
+            </div>
+            <Link
+              to="/history"
+              className="rounded-lg bg-indigo-400 px-2.5 py-1 text-[11px] font-black text-slate-950 hover:bg-indigo-300 transition-colors shrink-0"
+            >
+              Inspect Legal Queue →
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Metric cards */}
@@ -116,6 +178,148 @@ export function DashboardPage() {
           tone="blue"
           loading={summary.loading}
         />
+      </div>
+
+      {/* Workflow Approval Funnel Strip */}
+      <div className="rounded-2xl border-2 border-foreground bg-white p-5 shadow-hard space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b-2 border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-accent-yellow border border-foreground font-mono text-[10px] font-black">
+              WF
+            </span>
+            <h3 className="text-xs font-black uppercase tracking-wider text-foreground">
+              Investigation Lifecycle Pipeline (Statutory Progression)
+            </h3>
+          </div>
+          <Link
+            to="/history"
+            className="text-[11px] font-bold text-blue-700 hover:underline flex items-center gap-1"
+          >
+            <span>Filter Case Directory</span>
+            <ArrowRight size={11} />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <Link
+            to="/history"
+            className="rounded-xl border-2 border-slate-200 bg-slate-50 p-3 hover:border-foreground hover:bg-white hover:shadow-hard transition-all group"
+          >
+            <div className="flex items-center justify-between text-[11px] text-slate-500 font-bold uppercase">
+              <span>Open</span>
+              <Clock size={12} className="text-slate-400 group-hover:text-foreground" />
+            </div>
+            <p className="mt-1 text-2xl font-black text-foreground">
+              {wf["open"] || 0}
+            </p>
+            <span className="text-[10px] text-slate-400 font-medium">Initial intake</span>
+          </Link>
+
+          <Link
+            to="/history"
+            className="rounded-xl border-2 border-slate-200 bg-slate-50 p-3 hover:border-foreground hover:bg-white hover:shadow-hard transition-all group"
+          >
+            <div className="flex items-center justify-between text-[11px] text-slate-500 font-bold uppercase">
+              <span>Investigation</span>
+              <Shield size={12} className="text-blue-500 group-hover:text-blue-600" />
+            </div>
+            <p className="mt-1 text-2xl font-black text-blue-900">
+              {wf["under_investigation"] || 0}
+            </p>
+            <span className="text-[10px] text-slate-400 font-medium">Forensic analysis</span>
+          </Link>
+
+          <Link
+            to="/history"
+            className="rounded-xl border-2 border-amber-200 bg-amber-50/60 p-3 hover:border-foreground hover:bg-amber-50 hover:shadow-hard transition-all group"
+          >
+            <div className="flex items-center justify-between text-[11px] text-amber-800 font-bold uppercase">
+              <span>Supervisor</span>
+              <UserCheck size={12} className="text-amber-600" />
+            </div>
+            <p className="mt-1 text-2xl font-black text-amber-950">
+              {wf["pending_review"] || 0}
+            </p>
+            <span className="text-[10px] text-amber-700 font-medium">Review pending</span>
+          </Link>
+
+          <Link
+            to="/history"
+            className="rounded-xl border-2 border-indigo-200 bg-indigo-50/60 p-3 hover:border-foreground hover:bg-indigo-50 hover:shadow-hard transition-all group"
+          >
+            <div className="flex items-center justify-between text-[11px] text-indigo-800 font-bold uppercase">
+              <span>Legal Review</span>
+              <Scale size={12} className="text-indigo-600" />
+            </div>
+            <p className="mt-1 text-2xl font-black text-indigo-950">
+              {wf["pending_legal_review"] || 0}
+            </p>
+            <span className="text-[10px] text-indigo-700 font-medium">Compliance check</span>
+          </Link>
+
+          <Link
+            to="/history"
+            className="rounded-xl border-2 border-emerald-300 bg-emerald-50/70 p-3 hover:border-foreground hover:bg-emerald-50 hover:shadow-hard transition-all group"
+          >
+            <div className="flex items-center justify-between text-[11px] text-emerald-800 font-bold uppercase">
+              <span>Court Ready</span>
+              <FileCheck size={12} className="text-emerald-600" />
+            </div>
+            <p className="mt-1 text-2xl font-black text-emerald-950">
+              {wf["court_ready"] || 0}
+            </p>
+            <span className="text-[10px] text-emerald-700 font-medium">Sec 65B certified</span>
+          </Link>
+
+          <Link
+            to="/history"
+            className="rounded-xl border-2 border-slate-200 bg-slate-50 p-3 hover:border-foreground hover:bg-white hover:shadow-hard transition-all group"
+          >
+            <div className="flex items-center justify-between text-[11px] text-slate-500 font-bold uppercase">
+              <span>Closed</span>
+              <Lock size={12} className="text-slate-400" />
+            </div>
+            <p className="mt-1 text-2xl font-black text-slate-700">
+              {(wf["closed"] || 0) + (wf["archived"] || 0)}
+            </p>
+            <span className="text-[10px] text-slate-400 font-medium">Archived dossiers</span>
+          </Link>
+        </div>
+
+        {/* Evidentiary Integrity Counters */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-100 text-xs">
+          <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+            <FolderOpen size={16} className="text-blue-600 shrink-0" />
+            <div>
+              <p className="text-[10px] font-bold uppercase text-slate-500">Seized Exhibits</p>
+              <p className="text-sm font-black text-foreground">{s?.total_exhibits || 0} In Custody</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+            <Hash size={16} className="text-emerald-600 shrink-0" />
+            <div>
+              <p className="text-[10px] font-bold uppercase text-slate-500">Cryptographic Ledger</p>
+              <p className="text-sm font-black text-foreground">{s?.audit_events_count || 0} Blocks Chained</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+            <ShieldAlert size={16} className="text-rose-600 shrink-0" />
+            <div>
+              <p className="text-[10px] font-bold uppercase text-slate-500">Active Legal Holds</p>
+              <p className="text-sm font-black text-rose-700">{s?.legal_hold_count || 0} Sealed Dossiers</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-2.5 border border-slate-200">
+            <CheckCircle2 size={16} className="text-indigo-600 shrink-0" />
+            <div>
+              <p className="text-[10px] font-bold uppercase text-slate-500">Statutory Standard</p>
+              <p className="text-sm font-black text-foreground">NCRB / BSA 65B</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {(summary.error || recent.error) && (

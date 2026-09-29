@@ -10,11 +10,15 @@ import {
   Clock,
   Filter,
   RefreshCw,
+  Award,
+  Loader2,
 } from "lucide-react";
 import { PageHeader, EmptyState } from "../components/layout/PageHeader";
 import { StatusBadge } from "../components/dashboard/StatusBadge";
 import { useTranslation } from "react-i18next";
 import { useApi } from "../hooks/useApi";
+import { apiGet } from "../services/api";
+import { EvidentiaryCertificateModal, type EvidentiaryCertificate } from "../components/audit/EvidentiaryCertificateModal";
 import type { HistoryItem, ScreeningStatus } from "../types/api";
 
 function recommendationToStatus(rec: string | null, risk: number | null): ScreeningStatus {
@@ -29,6 +33,22 @@ export function ReportsPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [certModalOpen, setCertModalOpen] = useState(false);
+  const [selectedCert, setSelectedCert] = useState<EvidentiaryCertificate | null>(null);
+  const [loadingCertId, setLoadingCertId] = useState<string | null>(null);
+
+  const handleOpenCert = async (caseId: string) => {
+    setLoadingCertId(caseId);
+    try {
+      const res = await apiGet<EvidentiaryCertificate>(`/api/audit/cases/${caseId}/certificate`);
+      setSelectedCert(res);
+      setCertModalOpen(true);
+    } catch (err: any) {
+      alert(err.message || "Failed to generate evidentiary certificate.");
+    } finally {
+      setLoadingCertId(null);
+    }
+  };
 
   const { data: cases, loading, error, reload } = useApi<HistoryItem[]>("/api/cases");
 
@@ -217,6 +237,20 @@ export function ReportsPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3.5 text-right space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenCert(item.id)}
+                        disabled={loadingCertId === item.id}
+                        className="inline-flex items-center gap-1 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 shadow-sm hover:bg-amber-100 transition-colors"
+                        title="Generate Section 65B digital evidentiary certificate"
+                      >
+                        {loadingCertId === item.id ? (
+                          <Loader2 size={12} className="animate-spin text-amber-600" />
+                        ) : (
+                          <Award size={12} className="text-amber-600" />
+                        )}
+                        <span>Sec. 65B Cert</span>
+                      </button>
                       <Link
                         to={`/cases/${item.id}`}
                         className="inline-flex items-center gap-1 rounded-lg border border-slate-200  bg-white  px-3 py-1 text-xs font-semibold text-foreground  shadow-sm hover:bg-slate-50  transition-colors"
@@ -232,6 +266,14 @@ export function ReportsPage() {
           </div>
         )}
       </div>
+
+      {/* Evidentiary Certificate Modal */}
+      {certModalOpen && (
+        <EvidentiaryCertificateModal
+          certificate={selectedCert}
+          onClose={() => setCertModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

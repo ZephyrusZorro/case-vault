@@ -1,5 +1,8 @@
-﻿import { Loader2, Printer, CheckCircle2, XCircle, AlertTriangle, Info } from "lucide-react";
+import { useState } from "react";
+import { Loader2, Printer, CheckCircle2, XCircle, AlertTriangle, Info, Award } from "lucide-react";
 import { useApi } from "../../hooks/useApi";
+import { apiGet } from "../../services/api";
+import { EvidentiaryCertificateModal, type EvidentiaryCertificate } from "../audit/EvidentiaryCertificateModal";
 import type { CaseReportResponse, KeyFinding } from "../../types/api";
 
 function FindingIcon({ level }: { level: KeyFinding["level"] }) {
@@ -35,9 +38,26 @@ function outcomeTone(outcome: string): string {
 }
 
 export function ReportTab({ caseId }: { caseId: string }) {
+  const [certModalOpen, setCertModalOpen] = useState(false);
+  const [certData, setCertData] = useState<EvidentiaryCertificate | null>(null);
+  const [certLoading, setCertLoading] = useState(false);
+
   const { data, loading, error } = useApi<CaseReportResponse>(
     `/api/cases/${caseId}/report`,
   );
+
+  const handleOpenCertificate = async () => {
+    setCertLoading(true);
+    try {
+      const res = await apiGet<EvidentiaryCertificate>(`/api/audit/cases/${caseId}/certificate`);
+      setCertData(res);
+      setCertModalOpen(true);
+    } catch (err: any) {
+      alert(err.message || "Failed to generate evidentiary certificate.");
+    } finally {
+      setCertLoading(false);
+    }
+  };
 
   if (loading)
     return (
@@ -67,19 +87,39 @@ export function ReportTab({ caseId }: { caseId: string }) {
     <div className="report-root space-y-6 animate-fade-in">
       {/* Header */}
       <div className="card flex flex-wrap items-start justify-between gap-4 p-6 border border-slate-200/90 ">
-        <div>
-          <p className="text-base font-extrabold text-slate-900 ">ID-SHIELD Forensic Audit Dossier</p>
-          <p className="mt-0.5 text-xs text-slate-600  font-medium">
-            Case #{data.case_number} — {data.case_name}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+              {data.formatted_case_id || `CASE-2026-${String(data.case_number).padStart(5, "0")}`}
+            </span>
+            <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700">
+              {data.case_type || "Women Safety Investigation"}
+            </span>
+          </div>
+          <p className="text-base font-extrabold text-slate-900 ">
+            {data.title || data.case_name} — Forensic Audit Dossier
           </p>
           <p className="text-[11px] text-slate-400 ">
-            Generated {new Date(data.generated_at).toLocaleString()}
+            Department: {data.department || "NCRB Women Safety Division"} · Generated {new Date(data.generated_at).toLocaleString()}
           </p>
         </div>
-        <button type="button" onClick={() => window.print()} className="btn-secondary no-print text-xs shadow-sm flex items-center gap-1.5">
-          <Printer size={14} aria-hidden="true" />
-          <span>Print / Save PDF Dossier</span>
-        </button>
+
+        <div className="flex flex-wrap items-center gap-2 no-print">
+          <button
+            type="button"
+            onClick={handleOpenCertificate}
+            disabled={certLoading}
+            className="btn-primary text-xs shadow-sm flex items-center gap-1.5"
+            title="Generate official digital certificate for evidentiary record"
+          >
+            {certLoading ? <Loader2 size={14} className="animate-spin" /> : <Award size={14} />}
+            <span>Evidentiary Certificate (Sec. 65B)</span>
+          </button>
+          <button type="button" onClick={() => window.print()} className="btn-secondary text-xs shadow-sm flex items-center gap-1.5">
+            <Printer size={14} aria-hidden="true" />
+            <span>Print / Save PDF Dossier</span>
+          </button>
+        </div>
       </div>
 
       {/* Risk verdict banner */}
@@ -231,6 +271,14 @@ export function ReportTab({ caseId }: { caseId: string }) {
       <p className="rounded-xl bg-slate-100  p-4 text-[11px] leading-relaxed text-slate-500  border border-slate-200/60 ">
         {data.disclaimer}
       </p>
+
+      {/* Evidentiary Certificate Modal */}
+      {certModalOpen && (
+        <EvidentiaryCertificateModal
+          certificate={certData}
+          onClose={() => setCertModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
